@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEDGER — A Devilish Guide to Your Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0b0b0c;
+    --off-black:#1a1a1c;
+    --white:#ffffff;
+    --ivory:#f7f5f1;
+    --red:#b3122e;
+    --red-bright:#e0102f;
+    --gray:#8d8a86;
+    --line:rgba(11,11,12,0.12);
+    --line-dark:rgba(255,255,255,0.14);
+    --shadow: 0 20px 40px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--black);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{background:var(--red);color:var(--white);}
+
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:0.22em;
+    font-size:11px;
+    font-weight:600;
+    color:var(--gray);
+  }
+
+  /* ===== MASTHEAD ===== */
+  .masthead{
+    background:var(--black);
+    color:var(--white);
+    padding:28px 24px 0;
+    text-align:center;
+    position:relative;
+  }
+  .masthead .issue-line{
+    display:flex;
+    justify-content:space-between;
+    max-width:960px;
+    margin:0 auto 18px;
+    font-family:'Inter',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    font-size:10px;
+    color:rgba(255,255,255,0.55);
+    border-bottom:1px solid var(--line-dark);
+    padding-bottom:14px;
+  }
+  .wordmark{
+    font-family:'Bodoni Moda',serif;
+    font-weight:700;
+    font-style:normal;
+    font-size:clamp(42px,9vw,86px);
+    letter-spacing:0.02em;
+    margin:6px 0 2px;
+    line-height:0.95;
+  }
+  .wordmark em{
+    color:var(--red-bright);
+    font-style:italic;
+  }
+  .tagline{
+    font-family:'Bodoni Moda',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:15px;
+    color:rgba(255,255,255,0.75);
+    margin-bottom:22px;
+  }
+  nav.tabs{
+    display:flex;
+    justify-content:center;
+    gap:clamp(18px,4vw,48px);
+    max-width:960px;
+    margin:0 auto;
+  }
+  nav.tabs button{
+    background:none;
+    border:none;
+    color:rgba(255,255,255,0.55);
+    font-family:'Inter',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    font-size:12px;
+    font-weight:600;
+    padding:14px 2px 16px;
+    cursor:pointer;
+    position:relative;
+    transition:color .2s;
+  }
+  nav.tabs button:hover{color:rgba(255,255,255,0.85);}
+  nav.tabs button.active{color:var(--white);}
+  nav.tabs button.active::after{
+    content:'';
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:3px;
+    background:var(--red-bright);
+  }
+
+  /* ===== LAYOUT ===== */
+  main{
+    max-width:960px;
+    margin:0 auto;
+    padding:40px 24px 90px;
+  }
+  .view{display:none;animation:fadeIn .35s ease;}
+  .view.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.section-title{
+    font-family:'Bodoni Moda',serif;
+    font-weight:700;
+    font-size:28px;
+    margin:0 0 4px;
+  }
+  .section-sub{
+    font-family:'Bodoni Moda',serif;
+    font-style:italic;
+    color:var(--gray);
+    font-size:14px;
+    margin:0 0 26px;
+  }
+
+  /* ===== HERO BALANCE ===== */
+  .hero{
+    text-align:center;
+    padding:38px 20px 34px;
+    background:var(--white);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    margin-bottom:28px;
+    position:relative;
+  }
+  .hero::before,.hero::after{
+    content:'';
+    position:absolute;
+    top:14px;bottom:14px;
+    width:1px;
+    background:var(--line);
+  }
+  .hero::before{left:14px;}
+  .hero::after{right:14px;}
+  .hero .label{font-family:'Inter';text-transform:uppercase;letter-spacing:0.2em;font-size:11px;color:var(--gray);font-weight:600;}
+  .hero .amount{
+    font-family:'Bodoni Moda',serif;
+    font-weight:700;
+    font-size:clamp(46px,9vw,72px);
+    margin:8px 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .hero .amount.negative{color:var(--red);}
+  .hero .delta{font-size:13px;color:var(--gray);font-family:'Inter';}
+  .hero .delta.up{color:#2f7a44;}
+  .hero .delta.down{color:var(--red);}
+
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    padding:18px 16px;
+    text-align:center;
+  }
+  .stat-card .stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray);font-weight:600;}
+  .stat-card .stat-value{font-family:'Bodoni Moda',serif;font-weight:700;font-size:26px;margin-top:6px;}
+  .stat-card.income .stat-value{color:var(--black);}
+  .stat-card.expense .stat-value{color:var(--red);}
+  .stat-card.saved .stat-value{color:var(--black);}
+
+  /* insight box */
+  .insight{
+    border:1px solid var(--black);
+    padding:22px 24px;
+    margin-bottom:30px;
+    position:relative;
+    background:var(--white);
+  }
+  .insight .eyebrow{margin-bottom:8px;}
+  .insight p{
+    font-family:'Bodoni Moda',serif;
+    font-style:italic;
+    font-size:17px;
+    line-height:1.5;
+    margin:0;
+  }
+  .insight p span{color:var(--red);font-weight:700;font-style:normal;}
+
+  /* breakdown */
+  .breakdown{background:var(--white);border:1px solid var(--line);padding:22px 24px;margin-bottom:10px;}
+  .breakdown h3{font-family:'Bodoni Moda',serif;font-size:16px;margin:0 0 16px;font-weight:700;}
+  .bd-row{margin-bottom:14px;}
+  .bd-row .bd-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+  .bd-row .bd-top .cat{font-weight:600;}
+  .bd-row .bd-top .amt{color:var(--gray);}
+  .bd-track{height:6px;background:var(--ivory);border:1px solid var(--line);position:relative;overflow:hidden;}
+  .bd-fill{height:100%;background:var(--red);transition:width .6s ease;}
+  .empty-note{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gray);font-size:14px;padding:6px 0 2px;}
+
+  /* ===== TRANSACTIONS ===== */
+  .form-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    padding:24px;
+    margin-bottom:26px;
+    box-shadow:var(--shadow);
+  }
+  .type-toggle{
+    display:flex;
+    border:1px solid var(--black);
+    margin-bottom:18px;
+    width:fit-content;
+  }
+  .type-toggle button{
+    background:none;border:none;
+    padding:9px 26px;
+    font-family:'Inter';font-size:12px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.12em;
+    cursor:pointer;color:var(--black);
+  }
+  .type-toggle button.active.income{background:var(--black);color:var(--white);}
+  .type-toggle button.active.expense{background:var(--red);color:var(--white);}
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 16px;
+  }
+  .form-grid .full{grid-column:1 / -1;}
+  .field label{
+    display:block;
+    font-size:10px;text-transform:uppercase;letter-spacing:0.14em;
+    color:var(--gray);font-weight:600;margin-bottom:6px;
+  }
+  .field input,.field select{
+    width:100%;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    padding:8px 2px;
+    font-family:'Inter';
+    font-size:15px;
+    color:var(--black);
+    outline:none;
+    transition:border-color .2s;
+  }
+  .field input:focus,.field select:focus{border-bottom:1px solid var(--red);}
+  .add-btn{
+    margin-top:18px;
+    width:100%;
+    background:var(--black);
+    color:var(--white);
+    border:none;
+    padding:14px;
+    font-family:'Inter';
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    font-size:12px;
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .add-btn:hover{background:var(--red);}
+
+  .tx-filters{display:flex;gap:10px;margin-bottom:14px;}
+  .tx-filters button{
+    background:none;border:1px solid var(--line);
+    padding:7px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;
+    font-weight:600;color:var(--gray);cursor:pointer;
+  }
+  .tx-filters button.active{border-color:var(--black);color:var(--black);background:var(--white);}
+
+  .tx-list{background:var(--white);border:1px solid var(--line);}
+  .tx-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    transition:background .15s;
+  }
+  .tx-item:last-child{border-bottom:none;}
+  .tx-item:hover{background:var(--ivory);}
+  .tx-left{display:flex;flex-direction:column;gap:3px;}
+  .tx-cat{font-weight:600;font-size:14px;}
+  .tx-note{font-size:12px;color:var(--gray);font-family:'Bodoni Moda',serif;font-style:italic;}
+  .tx-date{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;}
+  .tx-right{display:flex;align-items:center;gap:14px;}
+  .tx-amt{font-family:'Bodoni Moda',serif;font-weight:700;font-size:17px;}
+  .tx-amt.income{color:var(--black);}
+  .tx-amt.expense{color:var(--red);}
+  .tx-del{
+    background:none;border:none;color:var(--gray);
+    font-size:16px;cursor:pointer;opacity:0;transition:opacity .15s,color .15s;
+    line-height:1;
+  }
+  .tx-item:hover .tx-del{opacity:1;}
+  .tx-del:hover{color:var(--red);}
+
+  /* ===== WISHLIST ===== */
+  .wish-add-toggle{
+    display:flex;align-items:center;gap:10px;
+    background:var(--black);color:var(--white);
+    padding:14px 20px;
+    cursor:pointer;
+    margin-bottom:22px;
+    font-family:'Inter';font-weight:700;text-transform:uppercase;letter-spacing:0.14em;font-size:12px;
+  }
+  .wish-add-toggle:hover{background:var(--red);}
+  .wish-add-toggle .plus{font-size:18px;line-height:1;}
+
+  .wish-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+  }
+  .wish-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    padding:22px;
+    position:relative;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .wish-icon{font-size:38px;line-height:1;margin-bottom:10px;}
+  .wish-name{font-family:'Bodoni Moda',serif;font-weight:700;font-size:19px;margin:0 0 2px;}
+  .wish-caption{font-family:'Bodoni Moda',serif;font-style:italic;font-size:12px;color:var(--gray);margin-bottom:16px;}
+  .wish-nums{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;font-weight:600;}
+  .wish-nums .saved{color:var(--black);}
+  .wish-nums .target{color:var(--gray);}
+  .tape{
+    height:10px;
+    position:relative;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(11,11,12,0.18) 0, rgba(11,11,12,0.18) 1px,
+        transparent 1px, transparent 10px);
+    border:1px solid var(--line);
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .tape-fill{
+    position:absolute;top:0;left:0;bottom:0;
+    background:var(--red);
+    transition:width .6s ease;
+  }
+  .wish-pct{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;}
+  .wish-actions{display:flex;gap:10px;}
+  .wish-actions button{
+    flex:1;
+    border:1px solid var(--black);
+    background:none;
+    padding:9px;
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+  }
+  .wish-actions button:hover{background:var(--black);color:var(--white);}
+  .wish-actions button.withdraw:hover{background:var(--red);border-color:var(--red);}
+  .wish-remove{
+    position:absolute;top:14px;right:16px;
+    background:none;border:none;color:var(--gray);
+    font-size:14px;cursor:pointer;
+  }
+  .wish-remove:hover{color:var(--red);}
+  .stamp{
+    position:absolute;
+    top:20px;right:-30px;
+    width:150px;
+    text-align:center;
+    border:3px double var(--red);
+    color:var(--red);
+    font-family:'Bodoni Moda',serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    padding:6px 0;
+    transform:rotate(18deg);
+    pointer-events:none;
+  }
+  .wish-card.acquired{background:var(--ivory);}
+
+  .wish-form-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    padding:24px;
+    margin-bottom:24px;
+    box-shadow:var(--shadow);
+    display:none;
+  }
+  .wish-form-card.open{display:block;}
+  .emoji-pick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+  .emoji-pick button{
+    background:var(--ivory);border:1px solid var(--line);
+    font-size:20px;padding:8px 10px;cursor:pointer;
+  }
+  .emoji-pick button.sel{border-color:var(--red);background:var(--white);}
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--gray);
+    font-family:'Bodoni Moda',serif;
+    font-style:italic;
+    font-size:16px;
+  }
+
+  footer{
+    text-align:center;
+    padding:26px;
+    color:var(--gray);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.2em;
+    border-top:1px solid var(--line);
+  }
+  .data-actions{
+    margin-top:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    letter-spacing:0.12em;
+  }
+  .data-actions button{
+    background:none;
+    border:none;
+    color:var(--gray);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    cursor:pointer;
+    padding:2px;
+  }
+  .data-actions button:hover{color:var(--red);}
+  .data-actions span{color:var(--line);}
+
+  @media(max-width:640px){
+    .stat-row{grid-template-columns:1fr;}
+    .form-grid{grid-template-columns:1fr;}
+    .wish-grid{grid-template-columns:1fr;}
+    nav.tabs{gap:16px;}
+    .stamp{right:-40px;width:140px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="issue-line">
+    <span id="issueDate">ISSUE — LOADING</span>
+    <span>PRICED IN DISCIPLINE, NOT IN DOLLARS</span>
+  </div>
+  <div class="wordmark">LE<em>DGER</em></div>
+  <div class="tagline">"That's rather comical — pretending you don't care about your bank balance."</div>
+  <nav class="tabs">
+    <button data-view="overview" class="active">Overview</button>
+    <button data-view="transactions">The Ledger</button>
+    <button data-view="wishlist">Wishlist</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===== OVERVIEW ===== -->
+  <section class="view active" id="view-overview">
+    <div class="hero">
+      <div class="label">Available Balance</div>
+      <div class="amount" id="heroBalance">$0.00</div>
+      <div class="delta" id="heroDelta">Nothing to report yet.</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card income">
+        <div class="stat-label">Income · This Month</div>
+        <div class="stat-value" id="statIncome">$0</div>
+      </div>
+      <div class="stat-card expense">
+        <div class="stat-label">Spent · This Month</div>
+        <div class="stat-value" id="statExpense">$0</div>
+      </div>
+      <div class="stat-card saved">
+        <div class="stat-label">Saved · Wishlist</div>
+        <div class="stat-value" id="statSaved">$0</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="eyebrow">Editor's Note</div>
+      <p id="insightText">Add an income and an expense, and I'll tell you something useful.</p>
+    </div>
+
+    <div class="breakdown">
+      <h3>Where It Went — Top Categories</h3>
+      <div id="breakdownList"><div class="empty-note">No expenses logged this month. Groundbreaking restraint.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== TRANSACTIONS ===== -->
+  <section class="view" id="view-transactions">
+    <h2 class="section-title">The Ledger</h2>
+    <p class="section-sub">Every dollar in, every dollar out. No exceptions, darling.</p>
+
+    <div class="form-card">
+      <div class="type-toggle">
+        <button class="active income" data-type="income">Income</button>
+        <button class="expense" data-type="expense">Expense</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" id="txAmount" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="txCategory"></select>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="txDate">
+        </div>
+        <div class="field">
+          <label>Note (optional)</label>
+          <input type="text" id="txNote" placeholder="e.g. cerulean sweater">
+        </div>
+      </div>
+      <button class="add-btn" id="addTxBtn">Add Entry</button>
+    </div>
+
+    <div class="tx-filters">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="income">Income</button>
+      <button data-filter="expense">Expenses</button>
+    </div>
+
+    <div class="tx-list" id="txList"></div>
+  </section>
+
+  <!-- ===== WISHLIST ===== -->
+  <section class="view" id="view-wishlist">
+    <h2 class="section-title">The Wishlist</h2>
+    <p class="section-sub">Everybody wants this. This is what separates the wanting from the having.</p>
+
+    <div class="wish-add-toggle" id="wishAddToggle">
+      <span class="plus">+</span> Add a New Desire
+    </div>
+
+    <div class="wish-form-card" id="wishFormCard">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Item Name</label>
+          <input type="text" id="wishName" placeholder="e.g. the Chanel flap bag">
+        </div>
+        <div class="field">
+          <label>Target Amount</label>
+          <input type="number" id="wishTarget" placeholder="0.00" step="0.01" min="1">
+        </div>
+        <div class="field full">
+          <label>Choose an Icon</label>
+          <div class="emoji-pick" id="emojiPick"></div>
+        </div>
+      </div>
+      <button class="add-btn" id="addWishBtn">Add to Wishlist</button>
+    </div>
+
+    <div class="wish-grid" id="wishGrid"></div>
+  </section>
+
+</main>
+
+<div style="max-width:960px;margin:0 auto;padding:0 24px 30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+  <button id="exportBtn" style="background:none;border:1px solid var(--black);color:var(--black);padding:11px 22px;font-family:'Inter';font-weight:700;text-transform:uppercase;letter-spacing:0.12em;font-size:11px;cursor:pointer;">Export Backup</button>
+  <button id="importBtn" style="background:none;border:1px solid var(--black);color:var(--black);padding:11px 22px;font-family:'Inter';font-weight:700;text-transform:uppercase;letter-spacing:0.12em;font-size:11px;cursor:pointer;">Import Backup</button>
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+</div>
+<footer>
+  Ledger — Est. Today. Groomed for those who won't apologize for wanting nice things.
+  <div class="data-actions">
+    <button id="exportBtn">Export Backup</button>
+    <span>·</span>
+    <button id="importBtn">Import Backup</button>
+    <span>·</span>
+    <button id="resetBtn">Reset All Data</button>
+  </div>
+  <input type="file" id="importFile" accept="application/json" style="display:none">
+</footer>
+
+<script>
+(function(){
+  const EMOJIS = ['👜','👠','✈️','💍','🏠','💻','📷','⌚','🚗','🎓','🕶️','🧥'];
+  const EXPENSE_CATS = ['Rent','Groceries','Transport','Shopping','Dining','Utilities','Entertainment','Health','Other'];
+  const INCOME_CATS = ['Salary','Freelance','Gift','Bonus','Other'];
+
+  let transactions = [];
+  let wishlist = [];
+  let currentTxType = 'income';
+  let currentFilter = 'all';
+  let selectedEmoji = EMOJIS[0];
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // ---------- STORAGE (browser localStorage — persists on this device/browser) ----------
+  const LS_TX = 'ledger:transactions';
+  const LS_WISH = 'ledger:wishlist';
+
+  async function loadData(){
+    try{
+      const t = localStorage.getItem(LS_TX);
+      transactions = t ? JSON.parse(t) : [];
+    }catch(e){ transactions = []; }
+    try{
+      const w = localStorage.getItem(LS_WISH);
+      wishlist = w ? JSON.parse(w) : [];
+    }catch(e){ wishlist = []; }
+    renderAll();
+  }
+  async function saveTransactions(){
+    try{ localStorage.setItem(LS_TX, JSON.stringify(transactions)); }
+    catch(e){ console.error('save tx failed', e); alert('Could not save — your browser storage may be full or blocked.'); }
+  }
+  async function saveWishlist(){
+    try{ localStorage.setItem(LS_WISH, JSON.stringify(wishlist)); }
+    catch(e){ console.error('save wishlist failed', e); alert('Could not save — your browser storage may be full or blocked.'); }
+  }
+
+  // ---------- NAV ----------
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      btn.classList.add('active');
+      $('view-' + btn.dataset.view).classList.add('active');
+    });
+  });
+
+  // ---------- ISSUE DATE ----------
+  const now = new Date();
+  $('issueDate').textContent = 'ISSUE — ' + now.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+  $('txDate').value = now.toISOString().slice(0,10);
+
+  // ---------- CATEGORY SELECT ----------
+  function populateCategories(){
+    const sel = $('txCategory');
+    sel.innerHTML = '';
+    const list = currentTxType === 'income' ? INCOME_CATS : EXPENSE_CATS;
+    list.forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      sel.appendChild(opt);
+    });
+  }
+  populateCategories();
+
+  document.querySelectorAll('.type-toggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.type-toggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTxType = btn.dataset.type;
+      populateCategories();
+    });
+  });
+
+  // ---------- ADD TRANSACTION ----------
+  $('addTxBtn').addEventListener('click', async ()=>{
+    const amount = parseFloat($('txAmount').value);
+    if(!amount || amount <= 0){ flashField($('txAmount')); return; }
+    const tx = {
+      id: 'tx_' + Date.now(),
+      type: currentTxType,
+      amount: amount,
+      category: $('txCategory').value,
+      note: $('txNote').value.trim(),
+      date: $('txDate').value || now.toISOString().slice(0,10)
+    };
+    transactions.unshift(tx);
+    await saveTransactions();
+    $('txAmount').value = '';
+    $('txNote').value = '';
+    renderAll();
+  });
+
+  function flashField(el){
+    el.style.borderBottomColor = 'var(--red)';
+    el.focus();
+    setTimeout(()=>{ el.style.borderBottomColor = ''; }, 900);
+  }
+
+  // ---------- FILTERS ----------
+  document.querySelectorAll('.tx-filters button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tx-filters button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTransactions();
+    });
+  });
+
+  // ---------- RENDER TRANSACTIONS ----------
+  function renderTransactions(){
+    const list = $('txList');
+    let items = transactions;
+    if(currentFilter !== 'all') items = items.filter(t=>t.type===currentFilter);
+    if(items.length === 0){
+      list.innerHTML = '<div class="empty-state">Not a single entry. The ledger is as empty as a size zero rack.</div>';
+      return;
+    }
+    list.innerHTML = items.map(t=>`
+      <div class="tx-item">
+        <div class="tx-left">
+          <div class="tx-cat">${t.category}${t.note ? '' : ''}</div>
+          ${t.note ? `<div class="tx-note">"${escapeHtml(t.note)}"</div>` : ''}
+          <div class="tx-date">${formatDate(t.date)}</div>
+        </div>
+        <div class="tx-right">
+          <div class="tx-amt ${t.type}">${t.type==='income'?'+':'−'} ${fmt(t.amount)}</div>
+          <button class="tx-del" data-id="${t.id}">✕</button>
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.tx-del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        transactions = transactions.filter(t=>t.id !== btn.dataset.id);
+        await saveTransactions();
+        renderAll();
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function formatDate(d){
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+  }
+
+  // ---------- WISHLIST FORM ----------
+  const emojiPick = $('emojiPick');
+  EMOJIS.forEach((e,i)=>{
+    const b = document.createElement('button');
+    b.textContent = e;
+    if(i===0) b.classList.add('sel');
+    b.addEventListener('click', ()=>{
+      emojiPick.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel');
+      selectedEmoji = e;
+    });
+    emojiPick.appendChild(b);
+  });
+
+  $('wishAddToggle').addEventListener('click', ()=>{
+    $('wishFormCard').classList.toggle('open');
+  });
+
+  $('addWishBtn').addEventListener('click', async ()=>{
+    const name = $('wishName').value.trim();
+    const target = parseFloat($('wishTarget').value);
+    if(!name){ flashField($('wishName')); return; }
+    if(!target || target <= 0){ flashField($('wishTarget')); return; }
+    wishlist.unshift({
+      id: 'wish_' + Date.now(),
+      name, target, saved: 0, icon: selectedEmoji,
+      created: now.toISOString().slice(0,10)
+    });
+    await saveWishlist();
+    $('wishName').value = '';
+    $('wishTarget').value = '';
+    $('wishFormCard').classList.remove('open');
+    renderAll();
+  });
+
+  // ---------- RENDER WISHLIST ----------
+  function renderWishlist(){
+    const grid = $('wishGrid');
+    if(wishlist.length === 0){
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No desires on file yet. Surely there\'s something.</div>';
+      return;
+    }
+    grid.innerHTML = wishlist.map(w=>{
+      const pct = Math.min(100, Math.round((w.saved / w.target) * 100));
+      const done = w.saved >= w.target;
+      return `
+      <div class="wish-card ${done?'acquired':''}">
+        ${done ? '<div class="stamp">Acquired</div>' : ''}
+        <button class="wish-remove" data-id="${w.id}" title="Remove">✕</button>
+        <div class="wish-icon">${w.icon}</div>
+        <div class="wish-name">${escapeHtml(w.name)}</div>
+        <div class="wish-caption">Fig. — saved toward since ${formatDate(w.created)}</div>
+        <div class="wish-nums">
+          <span class="saved">${fmt(w.saved)} saved</span>
+          <span class="target">of ${fmt(w.target)}</span>
+        </div>
+        <div class="tape"><div class="tape-fill" style="width:${pct}%"></div></div>
+        <div class="wish-pct">${pct}% there</div>
+        <div class="wish-actions">
+          <button class="allocate" data-id="${w.id}">Put Money In</button>
+          <button class="withdraw" data-id="${w.id}">Withdraw</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.wish-remove').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const w = wishlist.find(x=>x.id===btn.dataset.id);
+        if(w && w.saved > 0){
+          if(!confirm(`"${w.name}" still holds ${fmt(w.saved)} in savings. Removing it returns that money to your available balance. Proceed?`)) return;
+        }
+        wishlist = wishlist.filter(x=>x.id !== btn.dataset.id);
+        await saveWishlist();
+        renderAll();
+      });
+    });
+    grid.querySelectorAll('.allocate').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const w = wishlist.find(x=>x.id===btn.dataset.id);
+        const bal = computeBalance();
+        const remaining = w.target - w.saved;
+        const amt = parseFloat(prompt(`How much toward "${w.name}"? (Available: ${fmt(bal)}, needs ${fmt(remaining)} more)`));
+        if(!amt || amt <= 0) return;
+        if(amt > bal){ alert("That's more than you have available. Even Miranda can't approve that."); return; }
+        w.saved += amt;
+        await saveWishlist();
+        renderAll();
+      });
+    });
+    grid.querySelectorAll('.withdraw').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const w = wishlist.find(x=>x.id===btn.dataset.id);
+        if(w.saved <= 0){ alert('Nothing saved here yet to withdraw.'); return; }
+        const amt = parseFloat(prompt(`Withdraw how much from "${w.name}"? (Currently saved: ${fmt(w.saved)})`));
+        if(!amt || amt <= 0) return;
+        if(amt > w.saved){ alert("You can't withdraw more than what's saved."); return; }
+        w.saved -= amt;
+        await saveWishlist();
+        renderAll();
+      });
+    });
+  }
+
+  // ---------- COMPUTATIONS ----------
+  function computeBalance(){
+    const income = transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const expense = transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    const saved = wishlist.reduce((s,w)=>s+w.saved,0);
+    return income - expense - saved;
+  }
+
+  function monthKey(d){ return d.slice(0,7); }
+
+  function renderOverview(){
+    const balance = computeBalance();
+    const heroEl = $('heroBalance');
+    heroEl.textContent = (balance < 0 ? '−' : '') + fmt(balance);
+    heroEl.classList.toggle('negative', balance < 0);
+
+    const thisMonth = monthKey(now.toISOString().slice(0,10));
+    const monthTx = transactions.filter(t=>monthKey(t.date)===thisMonth);
+    const mIncome = monthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const mExpense = monthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    const totalSaved = wishlist.reduce((s,w)=>s+w.saved,0);
+
+    $('statIncome').textContent = fmt(mIncome);
+    $('statExpense').textContent = fmt(mExpense);
+    $('statSaved').textContent = fmt(totalSaved);
+
+    const delta = mIncome - mExpense;
+    const deltaEl = $('heroDelta');
+    if(transactions.length === 0){
+      deltaEl.textContent = 'Nothing to report yet.';
+      deltaEl.className = 'delta';
+    } else {
+      deltaEl.textContent = (delta>=0?'Up ':'Down ') + fmt(Math.abs(delta)) + ' this month — by choice or by chance.';
+      deltaEl.className = 'delta ' + (delta>=0?'up':'down');
+    }
+
+    // breakdown by category (all-time expenses, top 5)
+    const byCat = {};
+    transactions.filter(t=>t.type==='expense').forEach(t=>{
+      byCat[t.category] = (byCat[t.category]||0) + t.amount;
+    });
+    const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const bdEl = $('breakdownList');
+    if(entries.length === 0){
+      bdEl.innerHTML = '<div class="empty-note">No expenses logged. Groundbreaking restraint.</div>';
+    } else {
+      const max = entries[0][1];
+      bdEl.innerHTML = entries.map(([cat,amt])=>`
+        <div class="bd-row">
+          <div class="bd-top"><span class="cat">${cat}</span><span class="amt">${fmt(amt)}</span></div>
+          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(4,(amt/max)*100)}%"></div></div>
+        </div>
+      `).join('');
+    }
+
+    // insight
+    $('insightText').innerHTML = buildInsight(mIncome, mExpense, totalSaved, balance);
+  }
+
+  function buildInsight(mIncome, mExpense, totalSaved, balance){
+    if(transactions.length === 0 && wishlist.length === 0){
+      return 'This ledger is a blank page. Log an income, log an expense, and I\'ll start telling you the truth about your money.';
+    }
+    if(transactions.length === 0){
+      return `You\'ve set your sights on <span>${wishlist.length}</span> ${wishlist.length===1?'item':'items'} but haven\'t logged a single dollar of income. The wanting is easy — the funding is the discipline.`;
+    }
+    const netMonthly = mIncome - mExpense;
+    const activeGoal = [...wishlist].filter(w=>w.saved < w.target).sort((a,b)=>(a.target-a.saved)-(b.target-b.saved))[0];
+    if(activeGoal && netMonthly > 0){
+      const remaining = activeGoal.target - activeGoal.saved;
+      const months = Math.ceil(remaining / netMonthly);
+      return `At this month's pace of <span>${fmt(netMonthly)}</span> net saved, you\'re roughly <span>${months} month${months===1?'':'s'}</span> from affording "${escapeHtml(activeGoal.name)}" — assuming you don\'t let anything distract you.`;
+    }
+    if(activeGoal && netMonthly <= 0){
+      return `You\'re spending at or above what you earn this month, so "${escapeHtml(activeGoal.name)}" isn\'t getting any closer. Something has to give — ideally not your standards.`;
+    }
+    if(!activeGoal && wishlist.length > 0){
+      return `Every item on your wishlist is fully funded. That\'s not luck — that\'s discipline wearing a very good coat.`;
+    }
+    if(balance < 0){
+      return `Your available balance is <span>−${fmt(Math.abs(balance))}</span>. Even the most fabulous wardrobe can\'t be built on a deficit.`;
+    }
+    return `You\'re holding <span>${fmt(balance)}</span> in available balance with no active goal. Perhaps it\'s time to want something.`;
+  }
+
+  function renderAll(){
+    renderOverview();
+    renderTransactions();
+    renderWishlist();
+  }
+
+  // ---------- EXPORT / IMPORT BACKUP ----------
+  $('exportBtn').addEventListener('click', ()=>{
+    const backup = {
+      exportedAt: new Date().toISOString(),
+      transactions,
+      wishlist
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ledger-backup-' + now.toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  $('importBtn').addEventListener('click', ()=> $('importFile').click());
+
+  $('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev)=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!Array.isArray(data.transactions) || !Array.isArray(data.wishlist)){
+          throw new Error('bad shape');
+        }
+        const mode = confirm('Click OK to MERGE this backup with your current data, or Cancel to REPLACE your current data entirely with this backup.');
+        if(mode){
+          const existingTxIds = new Set(transactions.map(t=>t.id));
+          const existingWishIds = new Set(wishlist.map(w=>w.id));
+          data.transactions.forEach(t=>{ if(!existingTxIds.has(t.id)) transactions.push(t); });
+          data.wishlist.forEach(w=>{ if(!existingWishIds.has(w.id)) wishlist.push(w); });
+        } else {
+          transactions = data.transactions;
+          wishlist = data.wishlist;
+        }
+        await saveTransactions();
+        await saveWishlist();
+        renderAll();
+        alert('Backup restored. The ledger has been updated.');
+      }catch(err){
+        alert('That file doesn\'t look like a valid Ledger backup.');
+      }
+      $('importFile').value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- BACKUP / RESTORE ----------
+  $('exportBtn').addEventListener('click', ()=>{
+    const payload = { exportedAt: new Date().toISOString(), transactions, wishlist };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ledger-backup-' + now.toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  $('importBtn').addEventListener('click', ()=> $('importFile').click());
+  $('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev)=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!Array.isArray(data.transactions) || !Array.isArray(data.wishlist)){
+          throw new Error('bad shape');
+        }
+        if(!confirm('This will replace your current data with this backup. Continue?')) return;
+        transactions = data.transactions;
+        wishlist = data.wishlist;
+        await saveTransactions();
+        await saveWishlist();
+        renderAll();
+        alert('Backup restored.');
+      }catch(err){
+        alert('That file doesn\'t look like a valid Ledger backup.');
+      }finally{
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  $('resetBtn').addEventListener('click', async ()=>{
+    if(!confirm('This permanently deletes all transactions and wishlist items on this device. Are you sure?')) return;
+    transactions = [];
+    wishlist = [];
+    await saveTransactions();
+    await saveWishlist();
+    renderAll();
+  });
+
+  loadData();
+})();
+</script>
+</body>
+</html>
