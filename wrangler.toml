@@ -1,20 +1,16 @@
 name = "ledger"
-main = "src/worker.js"
-compatibility_date = "2024-11-01"
+main = "./worker.js"
+compatibility_date = "2026-08-21"
 
-# Static frontend (public/) served for any non-/api/ request
 [assets]
-directory = "./public"
+directory = "./"
 binding = "ASSETS"
 
-# D1 database — create with: wrangler d1 create ledger-db
-# then paste the database_id it gives you below.
 [[d1_databases]]
 binding = "DB"
 database_name = "ledger-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "YOUR_REAL_DATABASE_ID"
 
-# R2 bucket for PDF books — create with: wrangler r2 bucket create ledger-books
 [[r2_buckets]]
 binding = "BOOKS"
 bucket_name = "ledger-books"
