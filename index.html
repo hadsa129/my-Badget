@@ -3,764 +3,4588 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>LEDGER — A Devilish Guide to Your Money</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-  :root{
-    --black:#0b0b0c; --off-black:#1a1a1c; --white:#ffffff; --ivory:#f7f5f1;
-    --red:#b3122e; --red-bright:#e0102f; --gray:#8d8a86;
-    --line:rgba(11,11,12,0.12); --line-dark:rgba(255,255,255,0.14);
-    --shadow: 0 20px 40px rgba(0,0,0,0.08);
+:root{
+  --black:#0b0b0c;
+  --off-black:#1a1a1c;
+  --white:#ffffff;
+  --ivory:#f7f5f1;
+  --red:#b3122e;
+  --red-bright:#e0102f;
+  --gray:#8d8a86;
+  --line:rgba(11,11,12,0.12);
+  --line-dark:rgba(255,255,255,0.14);
+  --shadow:0 20px 40px rgba(0,0,0,0.08);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+}
+
+body{
+  background:var(--ivory);
+  color:var(--black);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+::selection{
+  background:var(--red);
+  color:var(--white);
+}
+
+button{
+  font-family:'Inter',sans-serif;
+}
+
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:0.22em;
+  font-size:11px;
+  font-weight:600;
+  color:var(--gray);
+}
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+#authScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--black);
+  padding:24px;
+}
+
+.auth-card{
+  background:var(--white);
+  width:100%;
+  max-width:400px;
+  padding:40px 34px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.4);
+}
+
+.auth-word{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:44px;
+  text-align:center;
+  margin-bottom:2px;
+}
+
+.auth-word em{
+  color:var(--red-bright);
+  font-style:italic;
+}
+
+.auth-tag{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  color:var(--gray);
+  text-align:center;
+  font-size:13px;
+  margin-bottom:28px;
+}
+
+.auth-tabs{
+  display:flex;
+  border:1px solid var(--black);
+  margin-bottom:22px;
+}
+
+.auth-tabs button{
+  flex:1;
+  background:none;
+  border:none;
+  padding:11px;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  cursor:pointer;
+}
+
+.auth-tabs button.active{
+  background:var(--black);
+  color:var(--white);
+}
+
+.auth-field{
+  margin-bottom:16px;
+}
+
+.auth-field label{
+  display:block;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  color:var(--gray);
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.auth-field input{
+  width:100%;
+  border:none;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  padding:10px 2px;
+  font-size:15px;
+  outline:none;
+}
+
+.auth-field input:focus{
+  border-bottom:1px solid var(--red);
+}
+
+.auth-submit{
+  width:100%;
+  background:var(--black);
+  color:var(--white);
+  border:none;
+  padding:14px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  font-size:12px;
+  cursor:pointer;
+  margin-top:6px;
+}
+
+.auth-submit:hover{
+  background:var(--red);
+}
+
+.auth-submit:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.auth-error{
+  color:var(--red);
+  font-size:13px;
+  margin-bottom:14px;
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  display:none;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+#app{
+  display:none;
+}
+
+.masthead{
+  background:var(--black);
+  color:var(--white);
+  padding:22px 24px 0;
+  text-align:center;
+  position:relative;
+}
+
+.issue-line{
+  display:flex;
+  justify-content:space-between;
+  max-width:1000px;
+  margin:0 auto 18px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  font-size:10px;
+  color:rgba(255,255,255,0.55);
+  border-bottom:1px solid var(--line-dark);
+  padding-bottom:14px;
+  gap:10px;
+}
+
+.issue-line .user-email{
+  color:rgba(255,255,255,0.8);
+}
+
+.logout-btn{
+  background:none;
+  border:none;
+  color:rgba(255,255,255,0.55);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  cursor:pointer;
+}
+
+.logout-btn:hover{
+  color:var(--red-bright);
+}
+
+.wordmark{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:clamp(38px,8vw,72px);
+  margin:4px 0 2px;
+  line-height:.95;
+}
+
+.wordmark em{
+  color:var(--red-bright);
+  font-style:italic;
+}
+
+.tagline{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  font-size:14px;
+  color:rgba(255,255,255,.75);
+  margin-bottom:18px;
+}
+
+nav.tabs{
+  display:flex;
+  justify-content:center;
+  gap:clamp(12px,3vw,36px);
+  max-width:1000px;
+  margin:0 auto;
+  flex-wrap:wrap;
+}
+
+nav.tabs button{
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.55);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:12px;
+  font-weight:600;
+  padding:14px 2px 16px;
+  cursor:pointer;
+  position:relative;
+}
+
+nav.tabs button:hover{
+  color:rgba(255,255,255,.85);
+}
+
+nav.tabs button.active{
+  color:var(--white);
+}
+
+nav.tabs button.active::after{
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:3px;
+  background:var(--red-bright);
+}
+
+main{
+  max-width:1000px;
+  margin:0 auto;
+  padding:36px 24px 90px;
+}
+
+.view{
+  display:none;
+  animation:fadeIn .35s ease;
+}
+
+.view.active{
+  display:block;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(6px);
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{background:var(--ivory);color:var(--black);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
-  ::selection{background:var(--red);color:var(--white);}
-  .eyebrow{text-transform:uppercase;letter-spacing:0.22em;font-size:11px;font-weight:600;color:var(--gray);}
-  button{font-family:'Inter',sans-serif;}
-
-  /* ===== AUTH SCREEN ===== */
-  #authScreen{
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:var(--black); padding:24px;
+  to{
+    opacity:1;
+    transform:translateY(0);
   }
-  .auth-card{
-    background:var(--white); width:100%; max-width:400px; padding:40px 34px;
-    box-shadow:0 30px 60px rgba(0,0,0,0.4);
+}
+
+h2.section-title{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0 0 4px;
+}
+
+.section-sub{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  color:var(--gray);
+  font-size:14px;
+  margin:0 0 24px;
+}
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+.hero{
+  text-align:center;
+  padding:34px 20px 30px;
+  background:var(--white);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  margin-bottom:26px;
+  position:relative;
+}
+
+.hero .label{
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  font-size:11px;
+  color:var(--gray);
+  font-weight:600;
+}
+
+.hero .amount{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:clamp(42px,8vw,64px);
+  margin:8px 0 4px;
+}
+
+.hero .amount.negative{
+  color:var(--red);
+}
+
+.hero .delta{
+  font-size:13px;
+  color:var(--gray);
+}
+
+.hero .delta.up{
+  color:#2f7a44;
+}
+
+.hero .delta.down{
+  color:var(--red);
+}
+
+.stat-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-bottom:26px;
+}
+
+.stat-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:16px;
+  text-align:center;
+}
+
+.stat-card .stat-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--gray);
+  font-weight:600;
+}
+
+.stat-card .stat-value{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:24px;
+  margin-top:6px;
+}
+
+.stat-card.expense .stat-value{
+  color:var(--red);
+}
+
+.insight{
+  border:1px solid var(--black);
+  padding:20px 22px;
+  margin-bottom:28px;
+  background:var(--white);
+}
+
+.insight p{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  font-size:16px;
+  line-height:1.5;
+  margin:0;
+}
+
+.insight p span{
+  color:var(--red);
+  font-weight:700;
+  font-style:normal;
+}
+
+.breakdown{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:20px 22px;
+}
+
+.breakdown h3{
+  font-family:'Bodoni Moda',serif;
+  font-size:16px;
+  margin:0 0 14px;
+}
+
+.bd-row{
+  margin-bottom:12px;
+}
+
+.bd-top{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.bd-top .cat{
+  font-weight:600;
+}
+
+.bd-top .amt{
+  color:var(--gray);
+}
+
+.bd-track{
+  height:6px;
+  background:var(--ivory);
+  border:1px solid var(--line);
+}
+
+.bd-fill{
+  height:100%;
+  background:var(--red);
+}
+
+.empty-note{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  color:var(--gray);
+  font-size:14px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:22px;
+  margin-bottom:24px;
+  box-shadow:var(--shadow);
+}
+
+.type-toggle{
+  display:flex;
+  border:1px solid var(--black);
+  margin-bottom:16px;
+  width:fit-content;
+}
+
+.type-toggle button{
+  background:none;
+  border:none;
+  padding:9px 24px;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  cursor:pointer;
+}
+
+.type-toggle button.active.income{
+  background:var(--black);
+  color:var(--white);
+}
+
+.type-toggle button.active.expense{
+  background:var(--red);
+  color:var(--white);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px 16px;
+}
+
+.form-grid .full{
+  grid-column:1/-1;
+}
+
+.field label{
+  display:block;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--gray);
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  border:none;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  padding:8px 2px;
+  font-size:15px;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+  border-bottom:1px solid var(--red);
+}
+
+.add-btn{
+  margin-top:16px;
+  width:100%;
+  background:var(--black);
+  color:var(--white);
+  border:none;
+  padding:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.add-btn:hover{
+  background:var(--red);
+}
+
+/* =========================================================
+   TRANSACTIONS
+========================================================= */
+
+.tx-filters{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.tx-filters button{
+  background:none;
+  border:1px solid var(--line);
+  padding:7px 16px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-weight:600;
+  color:var(--gray);
+  cursor:pointer;
+}
+
+.tx-filters button.active{
+  border-color:var(--black);
+  color:var(--black);
+}
+
+.tx-list{
+  background:var(--white);
+  border:1px solid var(--line);
+}
+
+.tx-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 20px;
+  border-bottom:1px solid var(--line);
+}
+
+.tx-item:last-child{
+  border-bottom:none;
+}
+
+.tx-item:hover{
+  background:var(--ivory);
+}
+
+.tx-left{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.tx-cat{
+  font-weight:600;
+  font-size:14px;
+}
+
+.tx-note{
+  font-size:12px;
+  color:var(--gray);
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+}
+
+.tx-date{
+  font-size:11px;
+  color:var(--gray);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.tx-right{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.tx-amt{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:16px;
+}
+
+.tx-amt.income{
+  color:var(--black);
+}
+
+.tx-amt.expense{
+  color:var(--red);
+}
+
+.del-btn{
+  background:none;
+  border:none;
+  color:var(--gray);
+  font-size:15px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity .15s;
+}
+
+.tx-item:hover .del-btn{
+  opacity:1;
+}
+
+.del-btn:hover{
+  color:var(--red);
+}
+
+/* =========================================================
+   WISHLIST
+========================================================= */
+
+.wish-add-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--black);
+  color:var(--white);
+  padding:13px 20px;
+  cursor:pointer;
+  margin-bottom:20px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:12px;
+}
+
+.wish-add-toggle:hover{
+  background:var(--red);
+}
+
+.wish-form-card{
+  display:none;
+}
+
+.wish-form-card.open{
+  display:block;
+}
+
+.emoji-pick{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.emoji-pick button{
+  background:var(--ivory);
+  border:1px solid var(--line);
+  font-size:20px;
+  padding:8px 10px;
+  cursor:pointer;
+}
+
+.emoji-pick button.sel{
+  border-color:var(--red);
+  background:var(--white);
+}
+
+.wish-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+
+.wish-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:20px;
+  position:relative;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.wish-icon{
+  font-size:34px;
+  margin-bottom:8px;
+}
+
+.wish-name{
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:18px;
+  margin:0 0 12px;
+}
+
+.wish-nums{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+.wish-nums .target{
+  color:var(--gray);
+}
+
+.tape{
+  height:9px;
+  position:relative;
+  background:repeating-linear-gradient(
+    90deg,
+    rgba(11,11,12,.18) 0,
+    rgba(11,11,12,.18) 1px,
+    transparent 1px,
+    transparent 10px
+  );
+  border:1px solid var(--line);
+  margin-bottom:12px;
+  overflow:hidden;
+}
+
+.tape-fill{
+  position:absolute;
+  top:0;
+  left:0;
+  bottom:0;
+  background:var(--red);
+}
+
+.wish-pct{
+  font-size:11px;
+  color:var(--gray);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:12px;
+}
+
+.wish-actions{
+  display:flex;
+  gap:10px;
+}
+
+.wish-actions button{
+  flex:1;
+  border:1px solid var(--black);
+  background:none;
+  padding:9px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  cursor:pointer;
+}
+
+.wish-actions button:hover{
+  background:var(--black);
+  color:var(--white);
+}
+
+.wish-actions button.withdraw:hover{
+  background:var(--red);
+  border-color:var(--red);
+}
+
+.wish-remove{
+  position:absolute;
+  top:14px;
+  right:16px;
+  background:none;
+  border:none;
+  color:var(--gray);
+  font-size:14px;
+  cursor:pointer;
+}
+
+.wish-remove:hover{
+  color:var(--red);
+}
+
+.stamp{
+  position:absolute;
+  top:18px;
+  right:-30px;
+  width:150px;
+  text-align:center;
+  border:3px double var(--red);
+  color:var(--red);
+  font-family:'Bodoni Moda',serif;
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  padding:6px 0;
+  transform:rotate(18deg);
+}
+
+/* =========================================================
+   TODO
+========================================================= */
+
+.subject-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:22px;
+  align-items:center;
+}
+
+.subject-pill{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:9px 18px;
+  font-size:12px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  cursor:pointer;
+  position:relative;
+}
+
+.subject-pill.active{
+  background:var(--black);
+  color:var(--white);
+  border-color:var(--black);
+}
+
+.subject-pill .count{
+  margin-left:6px;
+  color:var(--gray);
+  font-weight:400;
+}
+
+.subject-pill.active .count{
+  color:rgba(255,255,255,.6);
+}
+
+.subject-add{
+  border:1px dashed var(--gray);
+  background:none;
+  padding:9px 16px;
+  font-size:12px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  cursor:pointer;
+  color:var(--gray);
+}
+
+.subject-add:hover{
+  border-color:var(--red);
+  color:var(--red);
+}
+
+.subject-new-form{
+  display:none;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.subject-new-form.open{
+  display:flex;
+}
+
+.subject-new-form input{
+  flex:1;
+  border:1px solid var(--line);
+  padding:9px 12px;
+  font-size:14px;
+  outline:none;
+}
+
+.subject-new-form input:focus{
+  border-color:var(--red);
+}
+
+.subject-new-form button{
+  background:var(--black);
+  color:var(--white);
+  border:none;
+  padding:9px 18px;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+.todo-add-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.todo-add-row input{
+  flex:1;
+  border:none;
+  border-bottom:1px solid var(--line);
+  background:var(--white);
+  padding:12px 14px;
+  font-size:15px;
+  outline:none;
+}
+
+.todo-add-row input:focus{
+  border-bottom:1px solid var(--red);
+}
+
+.todo-add-row button{
+  background:var(--black);
+  color:var(--white);
+  border:none;
+  padding:0 22px;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  cursor:pointer;
+}
+
+.todo-add-row button:hover{
+  background:var(--red);
+}
+
+.todo-list{
+  background:var(--white);
+  border:1px solid var(--line);
+}
+
+.todo-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line);
+}
+
+.todo-item:last-child{
+  border-bottom:none;
+}
+
+.todo-check{
+  width:18px;
+  height:18px;
+  border:2px solid var(--black);
+  cursor:pointer;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:var(--white);
+}
+
+.todo-check.done{
+  background:var(--red);
+  border-color:var(--red);
+}
+
+.todo-text{
+  flex:1;
+  font-size:14px;
+}
+
+.todo-text.done{
+  color:var(--gray);
+  text-decoration:line-through;
+}
+
+.todo-item .del-btn{
+  opacity:0;
+}
+
+.todo-item:hover .del-btn{
+  opacity:1;
+}
+
+/* =========================================================
+   BOOKS
+========================================================= */
+
+.upload-zone{
+  border:2px dashed var(--gray);
+  background:var(--white);
+  padding:36px 20px;
+  text-align:center;
+  margin-bottom:26px;
+  cursor:pointer;
+  transition:border-color .15s;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover{
+  border-color:var(--red);
+}
+
+.upload-zone .up-icon{
+  font-size:30px;
+  margin-bottom:8px;
+}
+
+.upload-zone .up-text{
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  color:var(--gray);
+  font-size:15px;
+}
+
+.book-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.book-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:18px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+
+.book-icon{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.book-name{
+  font-weight:600;
+  font-size:13px;
+  word-break:break-word;
+  margin-bottom:4px;
+}
+
+.book-meta{
+  font-size:11px;
+  color:var(--gray);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:14px;
+}
+
+.book-actions{
+  display:flex;
+  gap:8px;
+}
+
+.book-actions button{
+  flex:1;
+  border:1px solid var(--black);
+  background:none;
+  padding:8px;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+
+.book-actions button:hover{
+  background:var(--black);
+  color:var(--white);
+}
+
+.book-actions button.del-book:hover{
+  background:var(--red);
+  border-color:var(--red);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(11,11,12,.85);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal-overlay.open{
+  display:flex;
+}
+
+.modal-box{
+  background:var(--white);
+  width:100%;
+  max-width:900px;
+  height:88vh;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+  border-bottom:1px solid var(--line);
+}
+
+.modal-head span{
+  font-weight:600;
+  font-size:14px;
+}
+
+.modal-close{
+  background:none;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  color:var(--gray);
+}
+
+.modal-close:hover{
+  color:var(--red);
+}
+
+.modal-box iframe{
+  flex:1;
+  border:none;
+  width:100%;
+}
+
+.empty-state{
+  text-align:center;
+  padding:44px 20px;
+  color:var(--gray);
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+  font-size:15px;
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+  color:var(--gray);
+  font-family:'Bodoni Moda',serif;
+  font-style:italic;
+}
+
+footer{
+  text-align:center;
+  padding:24px;
+  color:var(--gray);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  border-top:1px solid var(--line);
+}
+
+@media(max-width:640px){
+
+  .stat-row{
+    grid-template-columns:1fr;
   }
-  .auth-word{font-family:'Bodoni Moda',serif;font-weight:700;font-size:44px;text-align:center;margin-bottom:2px;}
-  .auth-word em{color:var(--red-bright);font-style:italic;}
-  .auth-tag{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gray);text-align:center;font-size:13px;margin-bottom:28px;}
-  .auth-tabs{display:flex;border:1px solid var(--black);margin-bottom:22px;}
-  .auth-tabs button{flex:1;background:none;border:none;padding:11px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;cursor:pointer;}
-  .auth-tabs button.active{background:var(--black);color:var(--white);}
-  .auth-field{margin-bottom:16px;}
-  .auth-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray);font-weight:600;margin-bottom:6px;}
-  .auth-field input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:10px 2px;font-size:15px;outline:none;}
-  .auth-field input:focus{border-bottom:1px solid var(--red);}
-  .auth-submit{width:100%;background:var(--black);color:var(--white);border:none;padding:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;font-size:12px;cursor:pointer;margin-top:6px;}
-  .auth-submit:hover{background:var(--red);}
-  .auth-error{color:var(--red);font-size:13px;margin-bottom:14px;font-family:'Bodoni Moda',serif;font-style:italic;display:none;}
 
-  /* ===== APP ===== */
-  #app{display:none;}
-  .masthead{background:var(--black);color:var(--white);padding:22px 24px 0;text-align:center;position:relative;}
-  .issue-line{display:flex;justify-content:space-between;max-width:1000px;margin:0 auto 18px;text-transform:uppercase;letter-spacing:0.14em;font-size:10px;color:rgba(255,255,255,0.55);border-bottom:1px solid var(--line-dark);padding-bottom:14px;gap:10px;}
-  .issue-line .user-email{color:rgba(255,255,255,0.8);}
-  .logout-btn{background:none;border:none;color:rgba(255,255,255,0.55);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;cursor:pointer;}
-  .logout-btn:hover{color:var(--red-bright);}
-  .wordmark{font-family:'Bodoni Moda',serif;font-weight:700;font-size:clamp(38px,8vw,72px);margin:4px 0 2px;line-height:0.95;}
-  .wordmark em{color:var(--red-bright);font-style:italic;}
-  .tagline{font-family:'Bodoni Moda',serif;font-style:italic;font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:18px;}
-  nav.tabs{display:flex;justify-content:center;gap:clamp(12px,3vw,36px);max-width:1000px;margin:0 auto;flex-wrap:wrap;}
-  nav.tabs button{background:none;border:none;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.14em;font-size:12px;font-weight:600;padding:14px 2px 16px;cursor:pointer;position:relative;}
-  nav.tabs button:hover{color:rgba(255,255,255,0.85);}
-  nav.tabs button.active{color:var(--white);}
-  nav.tabs button.active::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--red-bright);}
-
-  main{max-width:1000px;margin:0 auto;padding:36px 24px 90px;}
-  .view{display:none;animation:fadeIn .35s ease;}
-  .view.active{display:block;}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-  h2.section-title{font-family:'Bodoni Moda',serif;font-weight:700;font-size:26px;margin:0 0 4px;}
-  .section-sub{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gray);font-size:14px;margin:0 0 24px;}
-
-  /* hero + stats */
-  .hero{text-align:center;padding:34px 20px 30px;background:var(--white);border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:26px;position:relative;}
-  .hero .label{text-transform:uppercase;letter-spacing:0.2em;font-size:11px;color:var(--gray);font-weight:600;}
-  .hero .amount{font-family:'Bodoni Moda',serif;font-weight:700;font-size:clamp(42px,8vw,64px);margin:8px 0 4px;}
-  .hero .amount.negative{color:var(--red);}
-  .hero .delta{font-size:13px;color:var(--gray);}
-  .hero .delta.up{color:#2f7a44;} .hero .delta.down{color:var(--red);}
-  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px;}
-  .stat-card{background:var(--white);border:1px solid var(--line);padding:16px;text-align:center;}
-  .stat-card .stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray);font-weight:600;}
-  .stat-card .stat-value{font-family:'Bodoni Moda',serif;font-weight:700;font-size:24px;margin-top:6px;}
-  .stat-card.expense .stat-value{color:var(--red);}
-  .insight{border:1px solid var(--black);padding:20px 22px;margin-bottom:28px;background:var(--white);}
-  .insight p{font-family:'Bodoni Moda',serif;font-style:italic;font-size:16px;line-height:1.5;margin:0;}
-  .insight p span{color:var(--red);font-weight:700;font-style:normal;}
-  .breakdown{background:var(--white);border:1px solid var(--line);padding:20px 22px;}
-  .breakdown h3{font-family:'Bodoni Moda',serif;font-size:16px;margin:0 0 14px;}
-  .bd-row{margin-bottom:12px;}
-  .bd-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
-  .bd-top .cat{font-weight:600;} .bd-top .amt{color:var(--gray);}
-  .bd-track{height:6px;background:var(--ivory);border:1px solid var(--line);}
-  .bd-fill{height:100%;background:var(--red);}
-  .empty-note{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gray);font-size:14px;}
-
-  /* forms shared */
-  .form-card{background:var(--white);border:1px solid var(--line);padding:22px;margin-bottom:24px;box-shadow:var(--shadow);}
-  .type-toggle{display:flex;border:1px solid var(--black);margin-bottom:16px;width:fit-content;}
-  .type-toggle button{background:none;border:none;padding:9px 24px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;cursor:pointer;}
-  .type-toggle button.active.income{background:var(--black);color:var(--white);}
-  .type-toggle button.active.expense{background:var(--red);color:var(--white);}
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
-  .form-grid .full{grid-column:1/-1;}
-  .field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray);font-weight:600;margin-bottom:6px;}
-  .field input,.field select{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:8px 2px;font-size:15px;outline:none;}
-  .field input:focus,.field select:focus{border-bottom:1px solid var(--red);}
-  .add-btn{margin-top:16px;width:100%;background:var(--black);color:var(--white);border:none;padding:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;font-size:12px;cursor:pointer;}
-  .add-btn:hover{background:var(--red);}
-
-  .tx-filters{display:flex;gap:10px;margin-bottom:14px;}
-  .tx-filters button{background:none;border:1px solid var(--line);padding:7px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;color:var(--gray);cursor:pointer;}
-  .tx-filters button.active{border-color:var(--black);color:var(--black);}
-  .tx-list{background:var(--white);border:1px solid var(--line);}
-  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--line);}
-  .tx-item:last-child{border-bottom:none;}
-  .tx-item:hover{background:var(--ivory);}
-  .tx-left{display:flex;flex-direction:column;gap:3px;}
-  .tx-cat{font-weight:600;font-size:14px;}
-  .tx-note{font-size:12px;color:var(--gray);font-family:'Bodoni Moda',serif;font-style:italic;}
-  .tx-date{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;}
-  .tx-right{display:flex;align-items:center;gap:14px;}
-  .tx-amt{font-family:'Bodoni Moda',serif;font-weight:700;font-size:16px;}
-  .tx-amt.income{color:var(--black);} .tx-amt.expense{color:var(--red);}
-  .del-btn{background:none;border:none;color:var(--gray);font-size:15px;cursor:pointer;opacity:0;transition:opacity .15s;}
-  .tx-item:hover .del-btn{opacity:1;}
-  .del-btn:hover{color:var(--red);}
-
-  /* wishlist */
-  .wish-add-toggle{display:flex;align-items:center;gap:10px;background:var(--black);color:var(--white);padding:13px 20px;cursor:pointer;margin-bottom:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;font-size:12px;}
-  .wish-add-toggle:hover{background:var(--red);}
-  .wish-form-card{display:none;} .wish-form-card.open{display:block;}
-  .emoji-pick{display:flex;gap:8px;flex-wrap:wrap;}
-  .emoji-pick button{background:var(--ivory);border:1px solid var(--line);font-size:20px;padding:8px 10px;cursor:pointer;}
-  .emoji-pick button.sel{border-color:var(--red);background:var(--white);}
-  .wish-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
-  .wish-card{background:var(--white);border:1px solid var(--line);padding:20px;position:relative;box-shadow:var(--shadow);overflow:hidden;}
-  .wish-icon{font-size:34px;margin-bottom:8px;}
-  .wish-name{font-family:'Bodoni Moda',serif;font-weight:700;font-size:18px;margin:0 0 12px;}
-  .wish-nums{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;font-weight:600;}
-  .wish-nums .target{color:var(--gray);}
-  .tape{height:9px;position:relative;background:repeating-linear-gradient(90deg,rgba(11,11,12,0.18) 0,rgba(11,11,12,0.18) 1px,transparent 1px,transparent 10px);border:1px solid var(--line);margin-bottom:12px;overflow:hidden;}
-  .tape-fill{position:absolute;top:0;left:0;bottom:0;background:var(--red);}
-  .wish-pct{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
-  .wish-actions{display:flex;gap:10px;}
-  .wish-actions button{flex:1;border:1px solid var(--black);background:none;padding:9px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;}
-  .wish-actions button:hover{background:var(--black);color:var(--white);}
-  .wish-actions button.withdraw:hover{background:var(--red);border-color:var(--red);}
-  .wish-remove{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--gray);font-size:14px;cursor:pointer;}
-  .wish-remove:hover{color:var(--red);}
-  .stamp{position:absolute;top:18px;right:-30px;width:150px;text-align:center;border:3px double var(--red);color:var(--red);font-family:'Bodoni Moda',serif;font-weight:700;font-size:13px;letter-spacing:0.14em;text-transform:uppercase;padding:6px 0;transform:rotate(18deg);}
-
-  /* todo */
-  .subject-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;align-items:center;}
-  .subject-pill{background:var(--white);border:1px solid var(--line);padding:9px 18px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;position:relative;}
-  .subject-pill.active{background:var(--black);color:var(--white);border-color:var(--black);}
-  .subject-pill .count{margin-left:6px;color:var(--gray);font-weight:400;}
-  .subject-pill.active .count{color:rgba(255,255,255,0.6);}
-  .subject-add{border:1px dashed var(--gray);background:none;padding:9px 16px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;color:var(--gray);}
-  .subject-add:hover{border-color:var(--red);color:var(--red);}
-  .subject-new-form{display:flex;gap:8px;margin-bottom:20px;display:none;}
-  .subject-new-form.open{display:flex;}
-  .subject-new-form input{flex:1;border:1px solid var(--line);padding:9px 12px;font-size:14px;outline:none;}
-  .subject-new-form input:focus{border-color:var(--red);}
-  .subject-new-form button{background:var(--black);color:var(--white);border:none;padding:9px 18px;font-size:12px;font-weight:700;text-transform:uppercase;cursor:pointer;}
-  .todo-add-row{display:flex;gap:10px;margin-bottom:20px;}
-  .todo-add-row input{flex:1;border:none;border-bottom:1px solid var(--line);background:var(--white);padding:12px 14px;font-size:15px;outline:none;}
-  .todo-add-row input:focus{border-bottom:1px solid var(--red);}
-  .todo-add-row button{background:var(--black);color:var(--white);border:none;padding:0 22px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;cursor:pointer;}
-  .todo-add-row button:hover{background:var(--red);}
-  .todo-list{background:var(--white);border:1px solid var(--line);}
-  .todo-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);}
-  .todo-item:last-child{border-bottom:none;}
-  .todo-check{width:18px;height:18px;border:2px solid var(--black);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--white);}
-  .todo-check.done{background:var(--red);border-color:var(--red);}
-  .todo-text{flex:1;font-size:14px;}
-  .todo-text.done{color:var(--gray);text-decoration:line-through;}
-  .todo-item .del-btn{opacity:0;}
-  .todo-item:hover .del-btn{opacity:1;}
-
-  /* books */
-  .upload-zone{border:2px dashed var(--gray);background:var(--white);padding:36px 20px;text-align:center;margin-bottom:26px;cursor:pointer;transition:border-color .15s;}
-  .upload-zone:hover,.upload-zone.dragover{border-color:var(--red);}
-  .upload-zone .up-icon{font-size:30px;margin-bottom:8px;}
-  .upload-zone .up-text{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gray);font-size:15px;}
-  .book-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .book-card{background:var(--white);border:1px solid var(--line);padding:18px;text-align:center;box-shadow:var(--shadow);position:relative;}
-  .book-icon{font-size:32px;margin-bottom:10px;}
-  .book-name{font-weight:600;font-size:13px;word-break:break-word;margin-bottom:4px;}
-  .book-meta{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;}
-  .book-actions{display:flex;gap:8px;}
-  .book-actions button{flex:1;border:1px solid var(--black);background:none;padding:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;}
-  .book-actions button:hover{background:var(--black);color:var(--white);}
-  .book-actions button.del-book:hover{background:var(--red);border-color:var(--red);}
-
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(11,11,12,0.85);z-index:100;align-items:center;justify-content:center;padding:20px;}
-  .modal-overlay.open{display:flex;}
-  .modal-box{background:var(--white);width:100%;max-width:900px;height:88vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
-  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);}
-  .modal-head span{font-weight:600;font-size:14px;}
-  .modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray);}
-  .modal-close:hover{color:var(--red);}
-  .modal-box iframe{flex:1;border:none;width:100%;}
-
-  .empty-state{text-align:center;padding:44px 20px;color:var(--gray);font-family:'Bodoni Moda',serif;font-style:italic;font-size:15px;}
-
-  footer{text-align:center;padding:24px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:0.2em;border-top:1px solid var(--line);}
-
-  @media(max-width:640px){
-    .stat-row{grid-template-columns:1fr;}
-    .form-grid{grid-template-columns:1fr;}
-    .wish-grid{grid-template-columns:1fr;}
-    .book-grid{grid-template-columns:1fr 1fr;}
-    nav.tabs{gap:14px;}
+  .form-grid{
+    grid-template-columns:1fr;
   }
+
+  .form-grid .full{
+    grid-column:auto;
+  }
+
+  .wish-grid{
+    grid-template-columns:1fr;
+  }
+
+  .book-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  nav.tabs{
+    gap:14px;
+  }
+
+  .issue-line{
+    font-size:8px;
+  }
+
+  .tx-item{
+    padding:13px 12px;
+  }
+
+  .tx-right{
+    gap:6px;
+  }
+}
 </style>
 </head>
+
 <body>
 
-<!-- ===================== AUTH SCREEN ===================== -->
+<!-- =========================================================
+     AUTH SCREEN
+========================================================= -->
+
 <div id="authScreen">
+
   <div class="auth-card">
-    <div class="auth-word">LE<em>DGER</em></div>
-    <div class="auth-tag">"That's rather comical — pretending you don't care about your bank balance."</div>
+
+    <div class="auth-word">
+      LE<em>DGER</em>
+    </div>
+
+    <div class="auth-tag">
+      "That's rather comical — pretending you don't care about your bank balance."
+    </div>
+
     <div class="auth-tabs">
       <button id="tabLogin" class="active">Log In</button>
       <button id="tabSignup">Sign Up</button>
     </div>
+
     <div class="auth-error" id="authError"></div>
+
     <div class="auth-field">
       <label>Email</label>
-      <input type="email" id="authEmail" placeholder="you@example.com">
+      <input
+        type="email"
+        id="authEmail"
+        placeholder="you@example.com"
+      >
     </div>
+
     <div class="auth-field">
       <label>Password</label>
-      <input type="password" id="authPassword" placeholder="••••••••">
+      <input
+        type="password"
+        id="authPassword"
+        placeholder="••••••••"
+      >
     </div>
-    <button class="auth-submit" id="authSubmit">Log In</button>
+
+    <button class="auth-submit" id="authSubmit">
+      Log In
+    </button>
+
   </div>
+
 </div>
 
-<!-- ===================== APP ===================== -->
+
+<!-- =========================================================
+     APPLICATION
+========================================================= -->
+
 <div id="app">
-  <header class="masthead">
-    <div class="issue-line">
-      <span id="issueDate">ISSUE</span>
-      <span class="user-email" id="userEmail"></span>
-      <button class="logout-btn" id="logoutBtn">Log Out</button>
-    </div>
-    <div class="wordmark">LE<em>DGER</em></div>
-    <div class="tagline">"By all means, move at a glacial pace. You know how that thrills me."</div>
-    <nav class="tabs">
-      <button data-view="overview" class="active">Overview</button>
-      <button data-view="transactions">The Ledger</button>
-      <button data-view="wishlist">Wishlist</button>
-      <button data-view="todo">To-Do</button>
-      <button data-view="books">Books</button>
-    </nav>
-  </header>
 
-  <main>
-    <!-- OVERVIEW -->
-    <section class="view active" id="view-overview">
-      <div class="hero">
-        <div class="label">Available Balance</div>
-        <div class="amount" id="heroBalance">$0.00</div>
-        <div class="delta" id="heroDelta">Nothing to report yet.</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-card income"><div class="stat-label">Income · This Month</div><div class="stat-value" id="statIncome">$0</div></div>
-        <div class="stat-card expense"><div class="stat-label">Spent · This Month</div><div class="stat-value" id="statExpense">$0</div></div>
-        <div class="stat-card saved"><div class="stat-label">Saved · Wishlist</div><div class="stat-value" id="statSaved">$0</div></div>
-      </div>
-      <div class="insight"><div class="eyebrow">Editor's Note</div><p id="insightText">Loading your ledger...</p></div>
-      <div class="breakdown"><h3>Where It Went — Top Categories</h3><div id="breakdownList"></div></div>
-    </section>
+<header class="masthead">
 
-    <!-- TRANSACTIONS -->
-    <section class="view" id="view-transactions">
-      <h2 class="section-title">The Ledger</h2>
-      <p class="section-sub">Every dollar in, every dollar out. No exceptions, darling.</p>
-      <div class="form-card">
-        <div class="type-toggle">
-          <button class="active income" data-type="income">Income</button>
-          <button class="expense" data-type="expense">Expense</button>
-        </div>
-        <div class="form-grid">
-          <div class="field"><label>Amount</label><input type="number" id="txAmount" step="0.01" min="0" placeholder="0.00"></div>
-          <div class="field"><label>Category</label><select id="txCategory"></select></div>
-          <div class="field"><label>Date</label><input type="date" id="txDate"></div>
-          <div class="field"><label>Note (optional)</label><input type="text" id="txNote" placeholder="e.g. cerulean sweater"></div>
-        </div>
-        <button class="add-btn" id="addTxBtn">Add Entry</button>
-      </div>
-      <div class="tx-filters">
-        <button class="active" data-filter="all">All</button>
-        <button data-filter="income">Income</button>
-        <button data-filter="expense">Expenses</button>
-      </div>
-      <div class="tx-list" id="txList"></div>
-    </section>
+  <div class="issue-line">
 
-    <!-- WISHLIST -->
-    <section class="view" id="view-wishlist">
-      <h2 class="section-title">The Wishlist</h2>
-      <p class="section-sub">Everybody wants this. This is what separates the wanting from the having.</p>
-      <div class="wish-add-toggle" id="wishAddToggle"><span>+</span> Add a New Desire</div>
-      <div class="form-card wish-form-card" id="wishFormCard">
-        <div class="form-grid">
-          <div class="field full"><label>Item Name</label><input type="text" id="wishName" placeholder="e.g. the Chanel flap bag"></div>
-          <div class="field"><label>Target Amount</label><input type="number" id="wishTarget" step="0.01" min="1" placeholder="0.00"></div>
-          <div class="field full"><label>Choose an Icon</label><div class="emoji-pick" id="emojiPick"></div></div>
-        </div>
-        <button class="add-btn" id="addWishBtn">Add to Wishlist</button>
-      </div>
-      <div class="wish-grid" id="wishGrid"></div>
-    </section>
+    <span id="issueDate">ISSUE</span>
 
-    <!-- TODO -->
-    <section class="view" id="view-todo">
-      <h2 class="section-title">To-Do</h2>
-      <p class="section-sub">Sorted by subject, because chaos is for people without a system.</p>
-      <div class="subject-row" id="subjectRow"></div>
-      <div class="subject-new-form" id="subjectNewForm">
-        <input type="text" id="subjectNewInput" placeholder="New subject name, e.g. Work, Home, Plan, Books...">
-        <button id="subjectNewSave">Add</button>
-      </div>
-      <div class="todo-add-row">
-        <input type="text" id="todoNewInput" placeholder="Add a task to this subject...">
-        <button id="todoAddBtn">Add</button>
-      </div>
-      <div class="todo-list" id="todoList"></div>
-    </section>
+    <span class="user-email" id="userEmail"></span>
 
-    <!-- BOOKS -->
-    <section class="view" id="view-books">
-      <h2 class="section-title">Books</h2>
-      <p class="section-sub">Upload your PDFs once, read them anywhere you log in.</p>
-      <div class="upload-zone" id="uploadZone">
-        <div class="up-icon">📕</div>
-        <div class="up-text">Click or drag a PDF here to upload</div>
-        <input type="file" id="bookFileInput" accept="application/pdf" style="display:none">
-      </div>
-      <div class="book-grid" id="bookGrid"></div>
-    </section>
-  </main>
+    <button class="logout-btn" id="logoutBtn">
+      Log Out
+    </button>
 
-  <footer>Ledger — Groomed for those who won't apologize for wanting nice things.</footer>
-</div>
-
-<!-- PDF preview modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box">
-    <div class="modal-head"><span id="modalTitle"></span><button class="modal-close" id="modalClose">✕ Close</button></div>
-    <iframe id="modalFrame" src=""></iframe>
   </div>
+
+  <div class="wordmark">
+    LE<em>DGER</em>
+  </div>
+
+  <div class="tagline">
+    "By all means, move at a glacial pace. You know how that thrills me."
+  </div>
+
+  <nav class="tabs">
+
+    <button data-view="overview" class="active">
+      Overview
+    </button>
+
+    <button data-view="transactions">
+      The Ledger
+    </button>
+
+    <button data-view="wishlist">
+      Wishlist
+    </button>
+
+    <button data-view="todo">
+      To-Do
+    </button>
+
+    <button data-view="books">
+      Books
+    </button>
+
+  </nav>
+
+</header>
+
+
+<main>
+
+<!-- =========================================================
+     OVERVIEW
+========================================================= -->
+
+<section class="view active" id="view-overview">
+
+  <div class="hero">
+
+    <div class="label">
+      Available Balance
+    </div>
+
+    <div class="amount" id="heroBalance">
+      $0.00
+    </div>
+
+    <div class="delta" id="heroDelta">
+      Nothing to report yet.
+    </div>
+
+  </div>
+
+
+  <div class="stat-row">
+
+    <div class="stat-card income">
+
+      <div class="stat-label">
+        Income · This Month
+      </div>
+
+      <div class="stat-value" id="statIncome">
+        $0
+      </div>
+
+    </div>
+
+
+    <div class="stat-card expense">
+
+      <div class="stat-label">
+        Spent · This Month
+      </div>
+
+      <div class="stat-value" id="statExpense">
+        $0
+      </div>
+
+    </div>
+
+
+    <div class="stat-card saved">
+
+      <div class="stat-label">
+        Saved · Wishlist
+      </div>
+
+      <div class="stat-value" id="statSaved">
+        $0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="insight">
+
+    <div class="eyebrow">
+      Editor's Note
+    </div>
+
+    <p id="insightText">
+      Loading your ledger...
+    </p>
+
+  </div>
+
+
+  <div class="breakdown">
+
+    <h3>
+      Where It Went — Top Categories
+    </h3>
+
+    <div id="breakdownList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     TRANSACTIONS
+========================================================= -->
+
+<section class="view" id="view-transactions">
+
+  <h2 class="section-title">
+    The Ledger
+  </h2>
+
+  <p class="section-sub">
+    Every dollar in, every dollar out. No exceptions, darling.
+  </p>
+
+
+  <div class="form-card">
+
+    <div class="type-toggle">
+
+      <button
+        class="active income"
+        data-type="income">
+        Income
+      </button>
+
+      <button
+        class="expense"
+        data-type="expense">
+        Expense
+      </button>
+
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>Amount</label>
+
+        <input
+          type="number"
+          id="txAmount"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Category</label>
+
+        <select id="txCategory"></select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Date</label>
+
+        <input
+          type="date"
+          id="txDate"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Note (optional)</label>
+
+        <input
+          type="text"
+          id="txNote"
+          placeholder="e.g. cerulean sweater"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button class="add-btn" id="addTxBtn">
+      Add Entry
+    </button>
+
+  </div>
+
+
+  <div class="tx-filters">
+
+    <button
+      class="active"
+      data-filter="all">
+      All
+    </button>
+
+    <button data-filter="income">
+      Income
+    </button>
+
+    <button data-filter="expense">
+      Expenses
+    </button>
+
+  </div>
+
+
+  <div class="tx-list" id="txList"></div>
+
+</section>
+
+
+<!-- =========================================================
+     WISHLIST
+========================================================= -->
+
+<section class="view" id="view-wishlist">
+
+  <h2 class="section-title">
+    The Wishlist
+  </h2>
+
+  <p class="section-sub">
+    Everybody wants this. This is what separates the wanting from the having.
+  </p>
+
+
+  <div class="wish-add-toggle" id="wishAddToggle">
+
+    <span>+</span>
+    Add a New Desire
+
+  </div>
+
+
+  <div class="form-card wish-form-card" id="wishFormCard">
+
+    <div class="form-grid">
+
+      <div class="field full">
+
+        <label>Item Name</label>
+
+        <input
+          type="text"
+          id="wishName"
+          placeholder="e.g. the Chanel flap bag"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Target Amount</label>
+
+        <input
+          type="number"
+          id="wishTarget"
+          step="0.01"
+          min="1"
+          placeholder="0.00"
+        >
+
+      </div>
+
+
+      <div class="field full">
+
+        <label>Choose an Icon</label>
+
+        <div class="emoji-pick" id="emojiPick"></div>
+
+      </div>
+
+    </div>
+
+
+    <button class="add-btn" id="addWishBtn">
+      Add to Wishlist
+    </button>
+
+  </div>
+
+
+  <div class="wish-grid" id="wishGrid"></div>
+
+</section>
+
+
+<!-- =========================================================
+     TODO
+========================================================= -->
+
+<section class="view" id="view-todo">
+
+  <h2 class="section-title">
+    To-Do
+  </h2>
+
+  <p class="section-sub">
+    Sorted by subject, because chaos is for people without a system.
+  </p>
+
+
+  <div class="subject-row" id="subjectRow"></div>
+
+
+  <div class="subject-new-form" id="subjectNewForm">
+
+    <input
+      type="text"
+      id="subjectNewInput"
+      placeholder="New subject name, e.g. Work, Home, Plan, Books..."
+    >
+
+    <button id="subjectNewSave">
+      Add
+    </button>
+
+  </div>
+
+
+  <div class="todo-add-row">
+
+    <input
+      type="text"
+      id="todoNewInput"
+      placeholder="Add a task to this subject..."
+    >
+
+    <button id="todoAddBtn">
+      Add
+    </button>
+
+  </div>
+
+
+  <div class="todo-list" id="todoList"></div>
+
+</section>
+
+
+<!-- =========================================================
+     BOOKS
+========================================================= -->
+
+<section class="view" id="view-books">
+
+  <h2 class="section-title">
+    Books
+  </h2>
+
+  <p class="section-sub">
+    Upload your PDFs once, read them anywhere you log in.
+  </p>
+
+
+  <div class="upload-zone" id="uploadZone">
+
+    <div class="up-icon">
+      📕
+    </div>
+
+    <div class="up-text">
+      Click or drag a PDF here to upload
+    </div>
+
+    <input
+      type="file"
+      id="bookFileInput"
+      accept="application/pdf"
+      style="display:none"
+    >
+
+  </div>
+
+
+  <div class="book-grid" id="bookGrid"></div>
+
+</section>
+
+</main>
+
+
+<footer>
+  Ledger — Groomed for those who won't apologize for wanting nice things.
+</footer>
+
 </div>
+
+
+<!-- =========================================================
+     PDF MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <span id="modalTitle"></span>
+
+      <button
+        class="modal-close"
+        id="modalClose">
+        ✕ Close
+      </button>
+
+    </div>
+
+    <iframe
+      id="modalFrame"
+      src="">
+    </iframe>
+
+  </div>
+
+</div>
+
 
 <script>
+
 (function(){
-  const EMOJIS = ['👜','👠','✈️','💍','🏠','💻','📷','⌚','🚗','🎓','🕶️','🧥'];
-  const EXPENSE_CATS = ['Rent','Groceries','Transport','Shopping','Dining','Utilities','Entertainment','Health','Other'];
-  const INCOME_CATS = ['Salary','Freelance','Gift','Bonus','Other'];
 
-  let transactions = [], wishlist = [], subjects = [], todos = [], books = [];
-  let currentTxType = 'income', currentFilter = 'all', selectedEmoji = EMOJIS[0];
-  let activeSubjectId = null;
-  let authMode = 'login';
+'use strict';
 
-  const $ = (id) => document.getElementById(id);
-  const fmt = (n) => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  const escapeHtml = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
-  const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
 
-  async function api(path, options = {}) {
-    const res = await fetch('/api' + path, {
-      credentials: 'same-origin',
-      headers: options.body && !(options.body instanceof FormData) ? {'Content-Type':'application/json'} : undefined,
-      ...options,
-    });
-    let data = null;
-    try { data = await res.json(); } catch(e) {}
-    if (!res.ok) throw new Error((data && data.error) || 'Request failed');
-    return data;
-  }
+/* =========================================================
+   SUPABASE CONFIGURATION
+========================================================= */
 
-  // ---------- AUTH ----------
-  $('tabLogin').addEventListener('click', () => setAuthMode('login'));
-  $('tabSignup').addEventListener('click', () => setAuthMode('signup'));
-  function setAuthMode(mode){
-    authMode = mode;
-    $('tabLogin').classList.toggle('active', mode==='login');
-    $('tabSignup').classList.toggle('active', mode==='signup');
-    $('authSubmit').textContent = mode==='login' ? 'Log In' : 'Sign Up';
-    $('authError').style.display = 'none';
-  }
-  $('authSubmit').addEventListener('click', async () => {
-    const email = $('authEmail').value.trim();
-    const password = $('authPassword').value;
-    try{
-      await api('/auth/' + authMode, { method:'POST', body: JSON.stringify({email, password}) });
-      await boot();
-    }catch(err){
-      $('authError').textContent = err.message;
-      $('authError').style.display = 'block';
+const SUPABASE_URL =
+  'https://tirqndfqldlxyfqncram.supabase.co';
+
+const SUPABASE_KEY =
+  'sb_publishable_mGuRj6lzaQuQa1u8UPnvGw_DsNd1IPK';
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const EMOJIS = [
+  '👜',
+  '👠',
+  '✈️',
+  '💍',
+  '🏠',
+  '💻',
+  '📷',
+  '⌚',
+  '🚗',
+  '🎓',
+  '🕶️',
+  '🧥'
+];
+
+const EXPENSE_CATS = [
+  'Rent',
+  'Groceries',
+  'Transport',
+  'Shopping',
+  'Dining',
+  'Utilities',
+  'Entertainment',
+  'Health',
+  'Other'
+];
+
+const INCOME_CATS = [
+  'Salary',
+  'Freelance',
+  'Gift',
+  'Bonus',
+  'Other'
+];
+
+const BOOK_BUCKET = 'books';
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let transactions = [];
+let wishlist = [];
+let subjects = [];
+let todos = [];
+let books = [];
+
+let currentTxType = 'income';
+let currentFilter = 'all';
+
+let selectedEmoji = EMOJIS[0];
+
+let activeSubjectId = null;
+
+let authMode = 'login';
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+function fmt(n){
+
+  return '$' +
+    Math.abs(Number(n || 0)).toLocaleString(
+      undefined,
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+
+}
+
+
+function escapeHtml(value){
+
+  const d = document.createElement('div');
+
+  d.textContent = value ?? '';
+
+  return d.innerHTML;
+
+}
+
+
+function formatDate(date){
+
+  if(!date) return '';
+
+  return new Date(
+    date + 'T00:00:00'
+  ).toLocaleDateString(
+    undefined,
+    {
+      month:'short',
+      day:'numeric',
+      year:'numeric'
     }
-  });
-  $('logoutBtn').addEventListener('click', async () => {
-    await api('/auth/logout', { method:'POST' });
-    location.reload();
-  });
+  ).toUpperCase();
 
-  async function boot(){
-    try{
-      const me = await api('/auth/me');
-      $('userEmail').textContent = me.email;
-      $('authScreen').style.display = 'none';
-      $('app').style.display = 'block';
-      await loadAll();
-    }catch(err){
-      $('app').style.display = 'none';
-      $('authScreen').style.display = 'flex';
+}
+
+
+function today(){
+
+  return new Date()
+    .toISOString()
+    .slice(0,10);
+
+}
+
+
+function showError(message){
+
+  console.error(message);
+
+  alert(message);
+
+}
+
+
+function flash(el){
+
+  el.style.borderBottomColor =
+    'var(--red)';
+
+  el.focus();
+
+  setTimeout(() => {
+
+    el.style.borderBottomColor = '';
+
+  },900);
+
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+$('tabLogin').addEventListener(
+  'click',
+  () => setAuthMode('login')
+);
+
+
+$('tabSignup').addEventListener(
+  'click',
+  () => setAuthMode('signup')
+);
+
+
+function setAuthMode(mode){
+
+  authMode = mode;
+
+  $('tabLogin')
+    .classList
+    .toggle(
+      'active',
+      mode === 'login'
+    );
+
+  $('tabSignup')
+    .classList
+    .toggle(
+      'active',
+      mode === 'signup'
+    );
+
+  $('authSubmit').textContent =
+    mode === 'login'
+      ? 'Log In'
+      : 'Sign Up';
+
+  hideAuthError();
+
+}
+
+
+function showAuthError(message){
+
+  const el = $('authError');
+
+  el.textContent = message;
+
+  el.style.display = 'block';
+
+}
+
+
+function hideAuthError(){
+
+  $('authError').style.display =
+    'none';
+
+}
+
+
+$('authSubmit').addEventListener(
+  'click',
+  async () => {
+
+    hideAuthError();
+
+    const email =
+      $('authEmail').value.trim();
+
+    const password =
+      $('authPassword').value;
+
+    if(!email){
+
+      showAuthError(
+        'Please enter your email.'
+      );
+
+      return;
     }
-  }
 
-  // ---------- NAV ----------
-  document.querySelectorAll('nav.tabs button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-      btn.classList.add('active');
-      $('view-' + btn.dataset.view).classList.add('active');
-    });
-  });
+    if(!password || password.length < 6){
 
-  const now = new Date();
-  $('issueDate').textContent = 'ISSUE — ' + now.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}).toUpperCase();
-  $('txDate').value = now.toISOString().slice(0,10);
+      showAuthError(
+        'Password must contain at least 6 characters.'
+      );
 
-  // ---------- CATEGORIES ----------
-  function populateCategories(){
-    const sel = $('txCategory'); sel.innerHTML = '';
-    (currentTxType==='income'?INCOME_CATS:EXPENSE_CATS).forEach(c=>{
-      const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
-    });
-  }
-  populateCategories();
-  document.querySelectorAll('.type-toggle button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.type-toggle button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); currentTxType = btn.dataset.type; populateCategories();
-    });
-  });
+      return;
+    }
 
-  // ---------- TRANSACTIONS ----------
-  $('addTxBtn').addEventListener('click', async ()=>{
-    const amount = parseFloat($('txAmount').value);
-    if(!amount || amount<=0){ flash($('txAmount')); return; }
+    const button =
+      $('authSubmit');
+
+    button.disabled = true;
+
     try{
-      await api('/transactions', { method:'POST', body: JSON.stringify({
-        type: currentTxType, amount, category: $('txCategory').value,
-        note: $('txNote').value.trim(), date: $('txDate').value || now.toISOString().slice(0,10)
-      })});
-      $('txAmount').value=''; $('txNote').value='';
-      await loadAll();
-    }catch(err){ alert(err.message); }
-  });
-  function flash(el){ el.style.borderBottomColor='var(--red)'; el.focus(); setTimeout(()=>el.style.borderBottomColor='',900); }
 
-  document.querySelectorAll('.tx-filters button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.tx-filters button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); currentFilter = btn.dataset.filter; renderTransactions();
-    });
-  });
+      if(authMode === 'signup'){
 
-  function renderTransactions(){
-    const list = $('txList');
-    let items = transactions;
-    if(currentFilter!=='all') items = items.filter(t=>t.type===currentFilter);
-    if(items.length===0){ list.innerHTML = '<div class="empty-state">Not a single entry. The ledger is as empty as a size zero rack.</div>'; return; }
-    list.innerHTML = items.map(t=>`
-      <div class="tx-item">
-        <div class="tx-left">
-          <div class="tx-cat">${escapeHtml(t.category)}</div>
-          ${t.note ? `<div class="tx-note">"${escapeHtml(t.note)}"</div>` : ''}
-          <div class="tx-date">${formatDate(t.date)}</div>
-        </div>
-        <div class="tx-right">
-          <div class="tx-amt ${t.type}">${t.type==='income'?'+':'−'} ${fmt(t.amount)}</div>
-          <button class="del-btn" data-id="${t.id}">✕</button>
-        </div>
-      </div>`).join('');
-    list.querySelectorAll('.del-btn').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{ await api('/transactions/'+btn.dataset.id, {method:'DELETE'}); await loadAll(); });
-    });
-  }
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth.signUp({
+            email,
+            password
+          });
 
-  // ---------- WISHLIST ----------
-  const emojiPick = $('emojiPick');
-  EMOJIS.forEach((e,i)=>{
-    const b = document.createElement('button'); b.textContent=e;
-    if(i===0) b.classList.add('sel');
-    b.addEventListener('click', ()=>{ emojiPick.querySelectorAll('button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); selectedEmoji=e; });
-    emojiPick.appendChild(b);
-  });
-  $('wishAddToggle').addEventListener('click', ()=> $('wishFormCard').classList.toggle('open'));
-  $('addWishBtn').addEventListener('click', async ()=>{
-    const name = $('wishName').value.trim();
-    const target = parseFloat($('wishTarget').value);
-    if(!name){ flash($('wishName')); return; }
-    if(!target || target<=0){ flash($('wishTarget')); return; }
-    try{
-      await api('/wishlist', { method:'POST', body: JSON.stringify({name, target, icon:selectedEmoji}) });
-      $('wishName').value=''; $('wishTarget').value=''; $('wishFormCard').classList.remove('open');
-      await loadAll();
-    }catch(err){ alert(err.message); }
-  });
+        if(error)
+          throw error;
 
-  function renderWishlist(){
-    const grid = $('wishGrid');
-    if(wishlist.length===0){ grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No desires on file yet. Surely there\\'s something.</div>'; return; }
-    grid.innerHTML = wishlist.map(w=>{
-      const pct = Math.min(100, Math.round((w.saved/w.target)*100));
-      const done = w.saved >= w.target;
-      return `<div class="wish-card">
-        ${done?'<div class="stamp">Acquired</div>':''}
-        <button class="wish-remove" data-id="${w.id}">✕</button>
-        <div class="wish-icon">${w.icon}</div>
-        <div class="wish-name">${escapeHtml(w.name)}</div>
-        <div class="wish-nums"><span class="saved">${fmt(w.saved)} saved</span><span class="target">of ${fmt(w.target)}</span></div>
-        <div class="tape"><div class="tape-fill" style="width:${pct}%"></div></div>
-        <div class="wish-pct">${pct}% there</div>
-        <div class="wish-actions">
-          <button class="allocate" data-id="${w.id}">Put Money In</button>
-          <button class="withdraw" data-id="${w.id}">Withdraw</button>
-        </div>
-      </div>`;
-    }).join('');
-    grid.querySelectorAll('.wish-remove').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const w = wishlist.find(x=>x.id===btn.dataset.id);
-        if(w.saved>0 && !confirm(`"${w.name}" still holds ${fmt(w.saved)}. Removing it returns that to your available balance. Proceed?`)) return;
-        await api('/wishlist/'+btn.dataset.id, {method:'DELETE'}); await loadAll();
-      });
-    });
-    grid.querySelectorAll('.allocate').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const w = wishlist.find(x=>x.id===btn.dataset.id);
-        const amt = parseFloat(prompt(`How much toward "${w.name}"?`));
-        if(!amt||amt<=0) return;
-        try{ await api(`/wishlist/${btn.dataset.id}/allocate`, {method:'POST', body:JSON.stringify({amount:amt})}); await loadAll(); }
-        catch(err){ alert(err.message); }
-      });
-    });
-    grid.querySelectorAll('.withdraw').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const w = wishlist.find(x=>x.id===btn.dataset.id);
-        const amt = parseFloat(prompt(`Withdraw how much from "${w.name}"?`));
-        if(!amt||amt<=0) return;
-        try{ await api(`/wishlist/${btn.dataset.id}/withdraw`, {method:'POST', body:JSON.stringify({amount:amt})}); await loadAll(); }
-        catch(err){ alert(err.message); }
-      });
-    });
-  }
+        /*
+          If email confirmation is enabled,
+          Supabase will not immediately create
+          an authenticated session.
+        */
 
-  // ---------- TODO / SUBJECTS ----------
-  $('subjectNewSave').addEventListener('click', addSubject);
-  $('subjectNewInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addSubject(); });
-  async function addSubject(){
-    const name = $('subjectNewInput').value.trim();
-    if(!name) return;
-    await api('/subjects', {method:'POST', body:JSON.stringify({name})});
-    $('subjectNewInput').value=''; $('subjectNewForm').classList.remove('open');
-    await loadAll();
-  }
-  $('todoAddBtn').addEventListener('click', addTodo);
-  $('todoNewInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addTodo(); });
-  async function addTodo(){
-    const text = $('todoNewInput').value.trim();
-    if(!text) return;
-    if(!activeSubjectId){ alert('Pick or create a subject first.'); return; }
-    await api('/todos', {method:'POST', body:JSON.stringify({subject_id:activeSubjectId, text})});
-    $('todoNewInput').value=''; await loadAll();
-  }
+        if(!data.session){
 
-  function renderSubjects(){
-    const row = $('subjectRow');
-    if(!activeSubjectId && subjects.length>0) activeSubjectId = subjects[0].id;
-    row.innerHTML = subjects.map(s=>{
-      const count = todos.filter(t=>t.subject_id===s.id && !t.done).length;
-      return `<button class="subject-pill ${s.id===activeSubjectId?'active':''}" data-id="${s.id}">${escapeHtml(s.name)}<span class="count">${count}</span></button>`;
-    }).join('') + `<button class="subject-add" id="subjectAddBtn">+ New Subject</button>`;
+          showAuthError(
+            'Account created. Check your email to confirm your account, then log in.'
+          );
 
-    row.querySelectorAll('.subject-pill').forEach(btn=>{
-      btn.addEventListener('click', ()=>{ activeSubjectId = btn.dataset.id; renderSubjects(); renderTodos(); });
-      btn.addEventListener('dblclick', async ()=>{
-        if(confirm('Delete this subject and all its tasks?')){
-          await api('/subjects/'+btn.dataset.id, {method:'DELETE'});
-          activeSubjectId = null; await loadAll();
+          return;
         }
-      });
-    });
-    $('subjectAddBtn').addEventListener('click', ()=>{
-      $('subjectNewForm').classList.toggle('open');
-      $('subjectNewInput').focus();
-    });
-  }
 
-  function renderTodos(){
-    const list = $('todoList');
-    if(subjects.length===0){
-      list.innerHTML = '<div class="empty-state">No subjects yet. Create one above — Work, Home, Plan, Books, or whatever you like.</div>';
-      return;
-    }
-    const items = todos.filter(t=>t.subject_id===activeSubjectId)
-      .sort((a,b)=> a.done - b.done || new Date(b.created_at)-new Date(a.created_at));
-    if(items.length===0){
-      list.innerHTML = '<div class="empty-state">Nothing here yet. Add your first task above.</div>';
-      return;
-    }
-    list.innerHTML = items.map(t=>`
-      <div class="todo-item">
-        <div class="todo-check ${t.done?'done':''}" data-id="${t.id}">${t.done?'✓':''}</div>
-        <div class="todo-text ${t.done?'done':''}">${escapeHtml(t.text)}</div>
-        <button class="del-btn" data-id="${t.id}">✕</button>
-      </div>`).join('');
-    list.querySelectorAll('.todo-check').forEach(el=>{
-      el.addEventListener('click', async ()=>{
-        const t = todos.find(x=>x.id===el.dataset.id);
-        await api('/todos/'+el.dataset.id, {method:'PATCH', body:JSON.stringify({done:!t.done})});
-        await loadAll();
-      });
-    });
-    list.querySelectorAll('.del-btn').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{ await api('/todos/'+btn.dataset.id, {method:'DELETE'}); await loadAll(); });
-    });
-  }
+      }else{
 
-  // ---------- BOOKS ----------
-  $('uploadZone').addEventListener('click', ()=> $('bookFileInput').click());
-  $('bookFileInput').addEventListener('change', e=> uploadBook(e.target.files[0]));
-  $('uploadZone').addEventListener('dragover', e=>{ e.preventDefault(); $('uploadZone').classList.add('dragover'); });
-  $('uploadZone').addEventListener('dragleave', ()=> $('uploadZone').classList.remove('dragover'));
-  $('uploadZone').addEventListener('drop', e=>{
-    e.preventDefault(); $('uploadZone').classList.remove('dragover');
-    if(e.dataTransfer.files[0]) uploadBook(e.dataTransfer.files[0]);
-  });
-  async function uploadBook(file){
-    if(!file) return;
-    if(file.type !== 'application/pdf'){ alert('Only PDF files are accepted.'); return; }
-    const fd = new FormData(); fd.append('file', file);
-    $('uploadZone').querySelector('.up-text').textContent = 'Uploading ' + file.name + '...';
+        const {
+          error
+        } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if(error)
+          throw error;
+
+      }
+
+      await boot();
+
+    }catch(error){
+
+      console.error(error);
+
+      showAuthError(
+        error.message ||
+        'Authentication failed.'
+      );
+
+    }finally{
+
+      button.disabled = false;
+
+    }
+
+  }
+);
+
+
+/* Allow Enter to submit */
+
+$('authPassword').addEventListener(
+  'keydown',
+  e => {
+
+    if(e.key === 'Enter')
+      $('authSubmit').click();
+
+  }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+$('logoutBtn').addEventListener(
+  'click',
+  async () => {
+
     try{
-      await api('/books', {method:'POST', body:fd});
-      $('bookFileInput').value='';
+
+      const {
+        error
+      } =
+        await supabaseClient.auth.signOut();
+
+      if(error)
+        throw error;
+
+      location.reload();
+
+    }catch(error){
+
+      showError(error.message);
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   BOOT
+========================================================= */
+
+async function boot(){
+
+  try{
+
+    const {
+      data:{
+        session
+      }
+    } =
+      await supabaseClient.auth.getSession();
+
+    if(!session){
+
+      $('app').style.display = 'none';
+
+      $('authScreen').style.display =
+        'flex';
+
+      return;
+
+    }
+
+    $('userEmail').textContent =
+      session.user.email || '';
+
+    $('authScreen').style.display =
+      'none';
+
+    $('app').style.display =
+      'block';
+
+    await loadAll();
+
+  }catch(error){
+
+    console.error(error);
+
+    $('app').style.display = 'none';
+
+    $('authScreen').style.display =
+      'flex';
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTH STATE LISTENER
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  (event, session) => {
+
+    if(event === 'SIGNED_OUT'){
+
+      $('app').style.display = 'none';
+
+      $('authScreen').style.display =
+        'flex';
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document
+  .querySelectorAll('nav.tabs button')
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll('nav.tabs button')
+          .forEach(b =>
+            b.classList.remove('active')
+          );
+
+        document
+          .querySelectorAll('.view')
+          .forEach(v =>
+            v.classList.remove('active')
+          );
+
+        button.classList.add('active');
+
+        $('view-' + button.dataset.view)
+          .classList.add('active');
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   ISSUE DATE
+========================================================= */
+
+$('issueDate').textContent =
+  'ISSUE — ' +
+  new Date().toLocaleDateString(
+    undefined,
+    {
+      month:'long',
+      day:'numeric',
+      year:'numeric'
+    }
+  ).toUpperCase();
+
+
+$('txDate').value = today();
+
+
+/* =========================================================
+   CATEGORIES
+========================================================= */
+
+function populateCategories(){
+
+  const select =
+    $('txCategory');
+
+  select.innerHTML = '';
+
+  const categories =
+    currentTxType === 'income'
+      ? INCOME_CATS
+      : EXPENSE_CATS;
+
+  categories.forEach(category => {
+
+    const option =
+      document.createElement('option');
+
+    option.value = category;
+
+    option.textContent = category;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+populateCategories();
+
+
+document
+  .querySelectorAll('.type-toggle button')
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '.type-toggle button'
+          )
+          .forEach(b =>
+            b.classList.remove('active')
+          );
+
+        button.classList.add('active');
+
+        currentTxType =
+          button.dataset.type;
+
+        populateCategories();
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   TRANSACTIONS - LOAD
+========================================================= */
+
+async function loadTransactions(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('transactions')
+      .select('*')
+      .order('date',{
+        ascending:false
+      })
+      .order('created_at',{
+        ascending:false
+      });
+
+  if(error)
+    throw error;
+
+  transactions = data || [];
+
+}
+
+
+/* =========================================================
+   ADD TRANSACTION
+========================================================= */
+
+$('addTxBtn').addEventListener(
+  'click',
+  async () => {
+
+    const amount =
+      parseFloat(
+        $('txAmount').value
+      );
+
+    if(!amount || amount <= 0){
+
+      flash($('txAmount'));
+
+      return;
+    }
+
+    try{
+
+      const {
+        data:{
+          user
+        }
+      } =
+        await supabaseClient.auth.getUser();
+
+      if(!user)
+        throw new Error(
+          'You are not authenticated.'
+        );
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from('transactions')
+          .insert({
+            user_id:user.id,
+            type:currentTxType,
+            amount,
+            category:$('txCategory').value,
+            note:$('txNote').value.trim() || null,
+            date:$('txDate').value || today()
+          });
+
+      if(error)
+        throw error;
+
+      $('txAmount').value = '';
+
+      $('txNote').value = '';
+
       await loadAll();
-    }catch(err){ alert(err.message); }
-    finally{ $('uploadZone').querySelector('.up-text').textContent = 'Click or drag a PDF here to upload'; }
+
+    }catch(error){
+
+      showError(error.message);
+
+    }
+
   }
-  function renderBooks(){
-    const grid = $('bookGrid');
-    if(books.length===0){ grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No books uploaded yet.</div>'; return; }
-    grid.innerHTML = books.map(b=>`
-      <div class="book-card">
-        <div class="book-icon">📕</div>
-        <div class="book-name">${escapeHtml(b.filename)}</div>
-        <div class="book-meta">${(b.size/1024/1024).toFixed(1)} MB</div>
-        <div class="book-actions">
-          <button class="open-book" data-id="${b.id}" data-name="${escapeHtml(b.filename)}">Open</button>
-          <button class="del-book" data-id="${b.id}">Delete</button>
+);
+
+
+/* =========================================================
+   TRANSACTION FILTERS
+========================================================= */
+
+document
+  .querySelectorAll('.tx-filters button')
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '.tx-filters button'
+          )
+          .forEach(b =>
+            b.classList.remove('active')
+          );
+
+        button.classList.add('active');
+
+        currentFilter =
+          button.dataset.filter;
+
+        renderTransactions();
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   RENDER TRANSACTIONS
+========================================================= */
+
+function renderTransactions(){
+
+  const list =
+    $('txList');
+
+  let items =
+    [...transactions];
+
+  if(currentFilter !== 'all'){
+
+    items =
+      items.filter(
+        t =>
+          t.type === currentFilter
+      );
+
+  }
+
+  if(items.length === 0){
+
+    list.innerHTML =
+      '<div class="empty-state">' +
+      'Not a single entry. The ledger is as empty as a size zero rack.' +
+      '</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    items.map(t => `
+
+      <div class="tx-item">
+
+        <div class="tx-left">
+
+          <div class="tx-cat">
+            ${escapeHtml(t.category)}
+          </div>
+
+          ${
+            t.note
+              ? `
+                <div class="tx-note">
+                  "${escapeHtml(t.note)}"
+                </div>
+              `
+              : ''
+          }
+
+          <div class="tx-date">
+            ${formatDate(t.date)}
+          </div>
+
         </div>
-      </div>`).join('');
-    grid.querySelectorAll('.open-book').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        $('modalTitle').textContent = btn.dataset.name;
-        $('modalFrame').src = '/api/books/' + btn.dataset.id + '/file';
-        $('modalOverlay').classList.add('open');
-      });
+
+
+        <div class="tx-right">
+
+          <div class="tx-amt ${t.type}">
+            ${t.type === 'income' ? '+' : '−'}
+            ${fmt(t.amount)}
+          </div>
+
+          <button
+            class="del-btn"
+            data-id="${t.id}">
+            ✕
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join('');
+
+
+  list
+    .querySelectorAll('.del-btn')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          if(!confirm(
+            'Delete this transaction?'
+          ))
+            return;
+
+          try{
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('transactions')
+                .delete()
+                .eq('id',button.dataset.id);
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
     });
-    grid.querySelectorAll('.del-book').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        if(!confirm('Delete this book permanently?')) return;
-        await api('/books/'+btn.dataset.id, {method:'DELETE'}); await loadAll();
+
+}
+
+
+/* =========================================================
+   WISHLIST
+========================================================= */
+
+const emojiPick =
+  $('emojiPick');
+
+
+EMOJIS.forEach(
+  (emoji,index) => {
+
+    const button =
+      document.createElement('button');
+
+    button.type = 'button';
+
+    button.textContent = emoji;
+
+    if(index === 0)
+      button.classList.add('sel');
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        emojiPick
+          .querySelectorAll('button')
+          .forEach(
+            b => b.classList.remove('sel')
+          );
+
+        button.classList.add('sel');
+
+        selectedEmoji = emoji;
+
+      }
+    );
+
+    emojiPick.appendChild(button);
+
+  }
+);
+
+
+$('wishAddToggle').addEventListener(
+  'click',
+  () => {
+
+    $('wishFormCard')
+      .classList
+      .toggle('open');
+
+  }
+);
+
+
+/* =========================================================
+   LOAD WISHLIST
+========================================================= */
+
+async function loadWishlist(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('wishlist')
+      .select('*')
+      .order('created_at',{
+        ascending:false
       });
+
+  if(error)
+    throw error;
+
+  wishlist = data || [];
+
+}
+
+
+/* =========================================================
+   ADD WISHLIST
+========================================================= */
+
+$('addWishBtn').addEventListener(
+  'click',
+  async () => {
+
+    const name =
+      $('wishName').value.trim();
+
+    const target =
+      parseFloat(
+        $('wishTarget').value
+      );
+
+    if(!name){
+
+      flash($('wishName'));
+
+      return;
+    }
+
+    if(!target || target <= 0){
+
+      flash($('wishTarget'));
+
+      return;
+    }
+
+    try{
+
+      const {
+        data:{
+          user
+        }
+      } =
+        await supabaseClient.auth.getUser();
+
+      if(!user)
+        throw new Error(
+          'You are not authenticated.'
+        );
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from('wishlist')
+          .insert({
+            user_id:user.id,
+            name,
+            target,
+            saved:0,
+            icon:selectedEmoji
+          });
+
+      if(error)
+        throw error;
+
+      $('wishName').value = '';
+
+      $('wishTarget').value = '';
+
+      $('wishFormCard')
+        .classList
+        .remove('open');
+
+      await loadAll();
+
+    }catch(error){
+
+      showError(error.message);
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   RENDER WISHLIST
+========================================================= */
+
+function renderWishlist(){
+
+  const grid =
+    $('wishGrid');
+
+  if(wishlist.length === 0){
+
+    grid.innerHTML =
+      '<div class="empty-state" style="grid-column:1/-1;">' +
+      "No desires on file yet. Surely there's something." +
+      '</div>';
+
+    return;
+  }
+
+
+  grid.innerHTML =
+    wishlist.map(w => {
+
+      const saved =
+        Number(w.saved || 0);
+
+      const target =
+        Number(w.target || 0);
+
+      const pct =
+        target > 0
+          ? Math.min(
+              100,
+              Math.round(
+                saved / target * 100
+              )
+            )
+          : 0;
+
+      const done =
+        saved >= target;
+
+      return `
+
+        <div class="wish-card">
+
+          ${
+            done
+              ? '<div class="stamp">Acquired</div>'
+              : ''
+          }
+
+          <button
+            class="wish-remove"
+            data-id="${w.id}">
+            ✕
+          </button>
+
+          <div class="wish-icon">
+            ${escapeHtml(w.icon || '👜')}
+          </div>
+
+          <div class="wish-name">
+            ${escapeHtml(w.name)}
+          </div>
+
+          <div class="wish-nums">
+
+            <span class="saved">
+              ${fmt(saved)} saved
+            </span>
+
+            <span class="target">
+              of ${fmt(target)}
+            </span>
+
+          </div>
+
+          <div class="tape">
+
+            <div
+              class="tape-fill"
+              style="width:${pct}%">
+            </div>
+
+          </div>
+
+          <div class="wish-pct">
+            ${pct}% there
+          </div>
+
+          <div class="wish-actions">
+
+            <button
+              class="allocate"
+              data-id="${w.id}">
+              Put Money In
+            </button>
+
+            <button
+              class="withdraw"
+              data-id="${w.id}">
+              Withdraw
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('');
+
+
+  /* DELETE */
+
+  grid
+    .querySelectorAll('.wish-remove')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const item =
+            wishlist.find(
+              x =>
+                x.id === button.dataset.id
+            );
+
+          if(
+            item &&
+            Number(item.saved) > 0 &&
+            !confirm(
+              `"${item.name}" still holds ${fmt(item.saved)}. Delete it anyway?`
+            )
+          )
+            return;
+
+          try{
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('wishlist')
+                .delete()
+                .eq('id',button.dataset.id);
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
     });
+
+
+  /* ALLOCATE */
+
+  grid
+    .querySelectorAll('.allocate')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const item =
+            wishlist.find(
+              x =>
+                x.id === button.dataset.id
+            );
+
+          if(!item)
+            return;
+
+          const amount =
+            parseFloat(
+              prompt(
+                `How much toward "${item.name}"?`
+              )
+            );
+
+          if(!amount || amount <= 0)
+            return;
+
+          try{
+
+            const newSaved =
+              Number(item.saved || 0) +
+              amount;
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('wishlist')
+                .update({
+                  saved:newSaved
+                })
+                .eq(
+                  'id',
+                  item.id
+                );
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+
+  /* WITHDRAW */
+
+  grid
+    .querySelectorAll('.withdraw')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const item =
+            wishlist.find(
+              x =>
+                x.id === button.dataset.id
+            );
+
+          if(!item)
+            return;
+
+          const amount =
+            parseFloat(
+              prompt(
+                `Withdraw how much from "${item.name}"?`
+              )
+            );
+
+          if(!amount || amount <= 0)
+            return;
+
+          if(amount > Number(item.saved)){
+
+            alert(
+              'You cannot withdraw more than the amount saved.'
+            );
+
+            return;
+          }
+
+          try{
+
+            const newSaved =
+              Number(item.saved || 0) -
+              amount;
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('wishlist')
+                .update({
+                  saved:newSaved
+                })
+                .eq(
+                  'id',
+                  item.id
+                );
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   SUBJECTS
+========================================================= */
+
+async function loadSubjects(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('subjects')
+      .select('*')
+      .order('created_at',{
+        ascending:true
+      });
+
+  if(error)
+    throw error;
+
+  subjects = data || [];
+
+}
+
+
+/* =========================================================
+   TODOS
+========================================================= */
+
+async function loadTodos(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('todos')
+      .select('*')
+      .order('created_at',{
+        ascending:false
+      });
+
+  if(error)
+    throw error;
+
+  todos = data || [];
+
+}
+
+
+/* =========================================================
+   ADD SUBJECT
+========================================================= */
+
+$('subjectNewSave')
+  .addEventListener(
+    'click',
+    addSubject
+  );
+
+
+$('subjectNewInput')
+  .addEventListener(
+    'keydown',
+    e => {
+
+      if(e.key === 'Enter')
+        addSubject();
+
+    }
+  );
+
+
+async function addSubject(){
+
+  const name =
+    $('subjectNewInput')
+      .value
+      .trim();
+
+  if(!name)
+    return;
+
+  try{
+
+    const {
+      data:{
+        user
+      }
+    } =
+      await supabaseClient.auth.getUser();
+
+    if(!user)
+      throw new Error(
+        'You are not authenticated.'
+      );
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from('subjects')
+        .insert({
+          user_id:user.id,
+          name
+        });
+
+    if(error)
+      throw error;
+
+    $('subjectNewInput').value = '';
+
+    $('subjectNewForm')
+      .classList
+      .remove('open');
+
+    await loadAll();
+
+  }catch(error){
+
+    showError(error.message);
+
   }
-  $('modalClose').addEventListener('click', ()=>{ $('modalOverlay').classList.remove('open'); $('modalFrame').src=''; });
-  $('modalOverlay').addEventListener('click', e=>{ if(e.target.id==='modalOverlay'){ $('modalOverlay').classList.remove('open'); $('modalFrame').src=''; } });
 
-  // ---------- OVERVIEW ----------
-  function computeBalance(){
-    const income = transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-    const expense = transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-    const saved = wishlist.reduce((s,w)=>s+w.saved,0);
-    return income - expense - saved;
-  }
-  function monthKey(d){ return d.slice(0,7); }
-  function renderOverview(){
-    const balance = computeBalance();
-    const heroEl = $('heroBalance');
-    heroEl.textContent = (balance<0?'−':'') + fmt(balance);
-    heroEl.classList.toggle('negative', balance<0);
+}
 
-    const thisMonth = monthKey(now.toISOString().slice(0,10));
-    const monthTx = transactions.filter(t=>monthKey(t.date)===thisMonth);
-    const mIncome = monthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-    const mExpense = monthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-    const totalSaved = wishlist.reduce((s,w)=>s+w.saved,0);
-    $('statIncome').textContent = fmt(mIncome);
-    $('statExpense').textContent = fmt(mExpense);
-    $('statSaved').textContent = fmt(totalSaved);
 
-    const delta = mIncome - mExpense;
-    const deltaEl = $('heroDelta');
-    if(transactions.length===0){ deltaEl.textContent='Nothing to report yet.'; deltaEl.className='delta'; }
-    else{
-      deltaEl.textContent = (delta>=0?'Up ':'Down ') + fmt(Math.abs(delta)) + ' this month — by choice or by chance.';
-      deltaEl.className = 'delta ' + (delta>=0?'up':'down');
-    }
+/* =========================================================
+   RENDER SUBJECTS
+========================================================= */
 
-    const byCat = {};
-    transactions.filter(t=>t.type==='expense').forEach(t=>{ byCat[t.category]=(byCat[t.category]||0)+t.amount; });
-    const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const bdEl = $('breakdownList');
-    if(entries.length===0){ bdEl.innerHTML = '<div class="empty-note">No expenses logged. Groundbreaking restraint.</div>'; }
-    else{
-      const max = entries[0][1];
-      bdEl.innerHTML = entries.map(([cat,amt])=>`
-        <div class="bd-row"><div class="bd-top"><span class="cat">${cat}</span><span class="amt">${fmt(amt)}</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:${Math.max(4,(amt/max)*100)}%"></div></div></div>`).join('');
-    }
-    $('insightText').innerHTML = buildInsight(mIncome, mExpense, balance);
-  }
-  function buildInsight(mIncome, mExpense, balance){
-    if(transactions.length===0 && wishlist.length===0){
-      return 'This ledger is a blank page. Log an income, log an expense, and I\\'ll start telling you the truth about your money.';
-    }
-    if(transactions.length===0){
-      return `You've set your sights on <span>${wishlist.length}</span> ${wishlist.length===1?'item':'items'} but haven't logged a dollar of income yet.`;
-    }
-    const netMonthly = mIncome - mExpense;
-    const activeGoal = [...wishlist].filter(w=>w.saved<w.target).sort((a,b)=>(a.target-a.saved)-(b.target-b.saved))[0];
-    if(activeGoal && netMonthly>0){
-      const months = Math.ceil((activeGoal.target-activeGoal.saved)/netMonthly);
-      return `At this month's pace of <span>${fmt(netMonthly)}</span> net saved, you're roughly <span>${months} month${months===1?'':'s'}</span> from affording "${escapeHtml(activeGoal.name)}".`;
-    }
-    if(activeGoal && netMonthly<=0){
-      return `You're spending at or above what you earn this month, so "${escapeHtml(activeGoal.name)}" isn't getting any closer.`;
-    }
-    if(!activeGoal && wishlist.length>0){
-      return `Every item on your wishlist is fully funded. That's not luck — that's discipline wearing a very good coat.`;
-    }
-    if(balance<0){ return `Your available balance is <span>−${fmt(Math.abs(balance))}</span>. Even the best wardrobe can't be built on a deficit.`; }
-    return `You're holding <span>${fmt(balance)}</span> with no active goal. Perhaps it's time to want something.`;
+function renderSubjects(){
+
+  const row =
+    $('subjectRow');
+
+  if(
+    activeSubjectId &&
+    !subjects.some(
+      s => s.id === activeSubjectId
+    )
+  ){
+
+    activeSubjectId = null;
+
   }
 
-  // ---------- LOAD ALL ----------
-  async function loadAll(){
-    [transactions, wishlist, subjects, todos, books] = await Promise.all([
-      api('/transactions'), api('/wishlist'), api('/subjects'), api('/todos'), api('/books')
+  if(
+    !activeSubjectId &&
+    subjects.length > 0
+  ){
+
+    activeSubjectId =
+      subjects[0].id;
+
+  }
+
+
+  row.innerHTML =
+    subjects.map(subject => {
+
+      const count =
+        todos.filter(
+          todo =>
+            todo.subject_id === subject.id &&
+            !todo.done
+        ).length;
+
+      return `
+
+        <button
+          class="subject-pill ${
+            subject.id === activeSubjectId
+              ? 'active'
+              : ''
+          }"
+          data-id="${subject.id}">
+
+          ${escapeHtml(subject.name)}
+
+          <span class="count">
+            ${count}
+          </span>
+
+        </button>
+
+      `;
+
+    }).join('') +
+
+    `
+
+      <button
+        class="subject-add"
+        id="subjectAddBtn">
+
+        + New Subject
+
+      </button>
+
+    `;
+
+
+  row
+    .querySelectorAll('.subject-pill')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        () => {
+
+          activeSubjectId =
+            button.dataset.id;
+
+          renderSubjects();
+
+          renderTodos();
+
+        }
+      );
+
+
+      button.addEventListener(
+        'dblclick',
+        async () => {
+
+          if(
+            !confirm(
+              'Delete this subject and all its tasks?'
+            )
+          )
+            return;
+
+          try{
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('subjects')
+                .delete()
+                .eq(
+                  'id',
+                  button.dataset.id
+                );
+
+            if(error)
+              throw error;
+
+            activeSubjectId = null;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+
+  $('subjectAddBtn')
+    .addEventListener(
+      'click',
+      () => {
+
+        $('subjectNewForm')
+          .classList
+          .toggle('open');
+
+        $('subjectNewInput')
+          .focus();
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   ADD TODO
+========================================================= */
+
+$('todoAddBtn')
+  .addEventListener(
+    'click',
+    addTodo
+  );
+
+
+$('todoNewInput')
+  .addEventListener(
+    'keydown',
+    e => {
+
+      if(e.key === 'Enter')
+        addTodo();
+
+    }
+  );
+
+
+async function addTodo(){
+
+  const text =
+    $('todoNewInput')
+      .value
+      .trim();
+
+  if(!text)
+    return;
+
+  if(!activeSubjectId){
+
+    alert(
+      'Pick or create a subject first.'
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data:{
+        user
+      }
+    } =
+      await supabaseClient.auth.getUser();
+
+    if(!user)
+      throw new Error(
+        'You are not authenticated.'
+      );
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from('todos')
+        .insert({
+          user_id:user.id,
+          subject_id:activeSubjectId,
+          text,
+          done:false
+        });
+
+    if(error)
+      throw error;
+
+    $('todoNewInput').value = '';
+
+    await loadAll();
+
+  }catch(error){
+
+    showError(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER TODOS
+========================================================= */
+
+function renderTodos(){
+
+  const list =
+    $('todoList');
+
+  if(subjects.length === 0){
+
+    list.innerHTML =
+      '<div class="empty-state">' +
+      'No subjects yet. Create one above — Work, Home, Plan, Books, or whatever you like.' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  let items =
+    todos
+      .filter(
+        todo =>
+          todo.subject_id ===
+          activeSubjectId
+      )
+      .sort(
+        (a,b) =>
+          Number(a.done) -
+          Number(b.done)
+      );
+
+
+  if(items.length === 0){
+
+    list.innerHTML =
+      '<div class="empty-state">' +
+      'Nothing here yet. Add your first task above.' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    items.map(todo => `
+
+      <div class="todo-item">
+
+        <div
+          class="todo-check ${
+            todo.done ? 'done' : ''
+          }"
+          data-id="${todo.id}">
+
+          ${todo.done ? '✓' : ''}
+
+        </div>
+
+        <div
+          class="todo-text ${
+            todo.done ? 'done' : ''
+          }">
+
+          ${escapeHtml(todo.text)}
+
+        </div>
+
+        <button
+          class="del-btn"
+          data-id="${todo.id}">
+
+          ✕
+
+        </button>
+
+      </div>
+
+    `).join('');
+
+
+  /* TOGGLE */
+
+  list
+    .querySelectorAll('.todo-check')
+    .forEach(element => {
+
+      element.addEventListener(
+        'click',
+        async () => {
+
+          const todo =
+            todos.find(
+              x =>
+                x.id ===
+                element.dataset.id
+            );
+
+          if(!todo)
+            return;
+
+          try{
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('todos')
+                .update({
+                  done:!todo.done
+                })
+                .eq(
+                  'id',
+                  todo.id
+                );
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+
+  /* DELETE */
+
+  list
+    .querySelectorAll('.del-btn')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          try{
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from('todos')
+                .delete()
+                .eq(
+                  'id',
+                  button.dataset.id
+                );
+
+            if(error)
+              throw error;
+
+            await loadAll();
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   BOOKS
+========================================================= */
+
+async function loadBooks(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('books')
+      .select('*')
+      .order('created_at',{
+        ascending:false
+      });
+
+  if(error)
+    throw error;
+
+  books = data || [];
+
+}
+
+
+/* =========================================================
+   BOOK UPLOAD
+========================================================= */
+
+$('uploadZone')
+  .addEventListener(
+    'click',
+    () =>
+      $('bookFileInput').click()
+  );
+
+
+$('bookFileInput')
+  .addEventListener(
+    'change',
+    e =>
+      uploadBook(
+        e.target.files[0]
+      )
+  );
+
+
+$('uploadZone')
+  .addEventListener(
+    'dragover',
+    e => {
+
+      e.preventDefault();
+
+      $('uploadZone')
+        .classList
+        .add('dragover');
+
+    }
+  );
+
+
+$('uploadZone')
+  .addEventListener(
+    'dragleave',
+    () => {
+
+      $('uploadZone')
+        .classList
+        .remove('dragover');
+
+    }
+  );
+
+
+$('uploadZone')
+  .addEventListener(
+    'drop',
+    e => {
+
+      e.preventDefault();
+
+      $('uploadZone')
+        .classList
+        .remove('dragover');
+
+      if(e.dataTransfer.files[0])
+        uploadBook(
+          e.dataTransfer.files[0]
+        );
+
+    }
+  );
+
+
+async function uploadBook(file){
+
+  if(!file)
+    return;
+
+  if(file.type !== 'application/pdf'){
+
+    alert(
+      'Only PDF files are accepted.'
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data:{
+        user
+      }
+    } =
+      await supabaseClient.auth.getUser();
+
+    if(!user)
+      throw new Error(
+        'You are not authenticated.'
+      );
+
+
+    const uploadText =
+      $('uploadZone')
+        .querySelector('.up-text');
+
+    uploadText.textContent =
+      'Uploading ' +
+      file.name +
+      '...';
+
+
+    /*
+      Each user gets their own folder.
+      This makes Storage RLS easier to secure.
+    */
+
+    const safeName =
+      file.name
+        .replace(
+          /[^a-zA-Z0-9._-]/g,
+          '_'
+        );
+
+    const filePath =
+      user.id +
+      '/' +
+      Date.now() +
+      '_' +
+      safeName;
+
+
+    const {
+      error:uploadError
+    } =
+      await supabaseClient
+        .storage
+        .from(BOOK_BUCKET)
+        .upload(
+          filePath,
+          file,
+          {
+            contentType:'application/pdf',
+            upsert:false
+          }
+        );
+
+
+    if(uploadError)
+      throw uploadError;
+
+
+    const {
+      error:dbError
+    } =
+      await supabaseClient
+        .from('books')
+        .insert({
+          user_id:user.id,
+          filename:file.name,
+          storage_path:filePath,
+          size:file.size
+        });
+
+
+    if(dbError){
+
+      /*
+        If database insertion fails,
+        remove the uploaded file so
+        we don't leave an orphan.
+      */
+
+      await supabaseClient
+        .storage
+        .from(BOOK_BUCKET)
+        .remove([filePath]);
+
+      throw dbError;
+
+    }
+
+
+    $('bookFileInput').value = '';
+
+    await loadAll();
+
+
+  }catch(error){
+
+    showError(error.message);
+
+  }finally{
+
+    $('uploadZone')
+      .querySelector('.up-text')
+      .textContent =
+      'Click or drag a PDF here to upload';
+
+  }
+
+}
+
+
+/* =========================================================
+   OPEN BOOK
+========================================================= */
+
+async function openBook(book){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .storage
+        .from(BOOK_BUCKET)
+        .createSignedUrl(
+          book.storage_path,
+          3600
+        );
+
+    if(error)
+      throw error;
+
+    $('modalTitle').textContent =
+      book.filename;
+
+    $('modalFrame').src =
+      data.signedUrl;
+
+    $('modalOverlay')
+      .classList
+      .add('open');
+
+  }catch(error){
+
+    showError(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER BOOKS
+========================================================= */
+
+function renderBooks(){
+
+  const grid =
+    $('bookGrid');
+
+  if(books.length === 0){
+
+    grid.innerHTML =
+      '<div class="empty-state" style="grid-column:1/-1;">' +
+      'No books uploaded yet.' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    books.map(book => `
+
+      <div class="book-card">
+
+        <div class="book-icon">
+          📕
+        </div>
+
+        <div class="book-name">
+          ${escapeHtml(book.filename)}
+        </div>
+
+        <div class="book-meta">
+          ${
+            (
+              Number(book.size || 0) /
+              1024 /
+              1024
+            ).toFixed(1)
+          }
+          MB
+        </div>
+
+        <div class="book-actions">
+
+          <button
+            class="open-book"
+            data-id="${book.id}">
+            Open
+          </button>
+
+          <button
+            class="del-book"
+            data-id="${book.id}">
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join('');
+
+
+  /* OPEN */
+
+  grid
+    .querySelectorAll('.open-book')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        () => {
+
+          const book =
+            books.find(
+              b =>
+                b.id ===
+                button.dataset.id
+            );
+
+          if(book)
+            openBook(book);
+
+        }
+      );
+
+    });
+
+
+  /* DELETE */
+
+  grid
+    .querySelectorAll('.del-book')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          if(
+            !confirm(
+              'Delete this book permanently?'
+            )
+          )
+            return;
+
+
+          const book =
+            books.find(
+              b =>
+                b.id ===
+                button.dataset.id
+            );
+
+          if(!book)
+            return;
+
+
+          try{
+
+            /*
+              First remove the PDF
+              from Storage.
+            */
+
+            const {
+              error:storageError
+            } =
+              await supabaseClient
+                .storage
+                .from(BOOK_BUCKET)
+                .remove([
+                  book.storage_path
+                ]);
+
+
+            if(storageError)
+              throw storageError;
+
+
+            /*
+              Then remove database row.
+            */
+
+            const {
+              error:dbError
+            } =
+              await supabaseClient
+                .from('books')
+                .delete()
+                .eq(
+                  'id',
+                  book.id
+                );
+
+
+            if(dbError)
+              throw dbError;
+
+
+            await loadAll();
+
+
+          }catch(error){
+
+            showError(error.message);
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+$('modalClose')
+  .addEventListener(
+    'click',
+    closeModal
+  );
+
+
+$('modalOverlay')
+  .addEventListener(
+    'click',
+    e => {
+
+      if(
+        e.target.id ===
+        'modalOverlay'
+      ){
+
+        closeModal();
+
+      }
+
+    }
+  );
+
+
+function closeModal(){
+
+  $('modalOverlay')
+    .classList
+    .remove('open');
+
+  $('modalFrame').src = '';
+
+}
+
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+function computeBalance(){
+
+  const income =
+    transactions
+      .filter(
+        t => t.type === 'income'
+      )
+      .reduce(
+        (sum,t) =>
+          sum + Number(t.amount),
+        0
+      );
+
+
+  const expense =
+    transactions
+      .filter(
+        t => t.type === 'expense'
+      )
+      .reduce(
+        (sum,t) =>
+          sum + Number(t.amount),
+        0
+      );
+
+
+  const saved =
+    wishlist.reduce(
+      (sum,w) =>
+        sum + Number(w.saved || 0),
+      0
+    );
+
+
+  return income - expense - saved;
+
+}
+
+
+function monthKey(date){
+
+  return date
+    ? date.slice(0,7)
+    : '';
+
+}
+
+
+function renderOverview(){
+
+  const balance =
+    computeBalance();
+
+
+  const hero =
+    $('heroBalance');
+
+
+  hero.textContent =
+    (balance < 0 ? '−' : '') +
+    fmt(balance);
+
+
+  hero.classList.toggle(
+    'negative',
+    balance < 0
+  );
+
+
+  const thisMonth =
+    monthKey(today());
+
+
+  const monthTx =
+    transactions.filter(
+      t =>
+        monthKey(t.date) ===
+        thisMonth
+    );
+
+
+  const mIncome =
+    monthTx
+      .filter(
+        t => t.type === 'income'
+      )
+      .reduce(
+        (sum,t) =>
+          sum + Number(t.amount),
+        0
+      );
+
+
+  const mExpense =
+    monthTx
+      .filter(
+        t => t.type === 'expense'
+      )
+      .reduce(
+        (sum,t) =>
+          sum + Number(t.amount),
+        0
+      );
+
+
+  const totalSaved =
+    wishlist.reduce(
+      (sum,w) =>
+        sum + Number(w.saved || 0),
+      0
+    );
+
+
+  $('statIncome').textContent =
+    fmt(mIncome);
+
+
+  $('statExpense').textContent =
+    fmt(mExpense);
+
+
+  $('statSaved').textContent =
+    fmt(totalSaved);
+
+
+  const delta =
+    mIncome - mExpense;
+
+
+  const deltaEl =
+    $('heroDelta');
+
+
+  if(transactions.length === 0){
+
+    deltaEl.textContent =
+      'Nothing to report yet.';
+
+    deltaEl.className =
+      'delta';
+
+  }else{
+
+    deltaEl.textContent =
+      (
+        delta >= 0
+          ? 'Up '
+          : 'Down '
+      ) +
+      fmt(Math.abs(delta)) +
+      ' this month — by choice or by chance.';
+
+    deltaEl.className =
+      'delta ' +
+      (
+        delta >= 0
+          ? 'up'
+          : 'down'
+      );
+
+  }
+
+
+  /* CATEGORY BREAKDOWN */
+
+  const byCategory = {};
+
+
+  transactions
+    .filter(
+      t =>
+        t.type === 'expense'
+    )
+    .forEach(
+      t => {
+
+        const category =
+          t.category || 'Other';
+
+        byCategory[category] =
+          (
+            byCategory[category] ||
+            0
+          ) +
+          Number(t.amount);
+
+      }
+    );
+
+
+  const entries =
+    Object.entries(byCategory)
+      .sort(
+        (a,b) =>
+          b[1] - a[1]
+      )
+      .slice(0,5);
+
+
+  const breakdown =
+    $('breakdownList');
+
+
+  if(entries.length === 0){
+
+    breakdown.innerHTML =
+      '<div class="empty-note">' +
+      'No expenses logged. Groundbreaking restraint.' +
+      '</div>';
+
+  }else{
+
+    const max =
+      entries[0][1];
+
+
+    breakdown.innerHTML =
+      entries.map(
+        ([category,amount]) => `
+
+          <div class="bd-row">
+
+            <div class="bd-top">
+
+              <span class="cat">
+                ${escapeHtml(category)}
+              </span>
+
+              <span class="amt">
+                ${fmt(amount)}
+              </span>
+
+            </div>
+
+            <div class="bd-track">
+
+              <div
+                class="bd-fill"
+                style="width:${Math.max(
+                  4,
+                  (amount / max) * 100
+                )}%">
+              </div>
+
+            </div>
+
+          </div>
+
+        `
+      ).join('');
+
+  }
+
+
+  $('insightText').innerHTML =
+    buildInsight(
+      mIncome,
+      mExpense,
+      balance
+    );
+
+}
+
+
+/* =========================================================
+   INSIGHT
+========================================================= */
+
+function buildInsight(
+  mIncome,
+  mExpense,
+  balance
+){
+
+  if(
+    transactions.length === 0 &&
+    wishlist.length === 0
+  ){
+
+    return (
+      'This ledger is a blank page. ' +
+      'Log an income, log an expense, and ' +
+      "I'll start telling you the truth about your money."
+    );
+
+  }
+
+
+  if(transactions.length === 0){
+
+    return (
+      `You've set your sights on ` +
+      `<span>${wishlist.length}</span> ` +
+      `${
+        wishlist.length === 1
+          ? 'item'
+          : 'items'
+      } but haven't logged a dollar of income yet.`
+    );
+
+  }
+
+
+  const netMonthly =
+    mIncome - mExpense;
+
+
+  const activeGoal =
+    [...wishlist]
+      .filter(
+        w =>
+          Number(w.saved || 0) <
+          Number(w.target || 0)
+      )
+      .sort(
+        (a,b) =>
+          (
+            Number(a.target) -
+            Number(a.saved)
+          ) -
+          (
+            Number(b.target) -
+            Number(b.saved)
+          )
+      )[0];
+
+
+  if(
+    activeGoal &&
+    netMonthly > 0
+  ){
+
+    const months =
+      Math.ceil(
+        (
+          Number(activeGoal.target) -
+          Number(activeGoal.saved)
+        ) /
+        netMonthly
+      );
+
+
+    return (
+      `At this month's pace of ` +
+      `<span>${fmt(netMonthly)}</span> ` +
+      `net saved, you're roughly ` +
+      `<span>${months} month${
+        months === 1 ? '' : 's'
+      }</span> from affording ` +
+      `"${escapeHtml(activeGoal.name)}".`
+    );
+
+  }
+
+
+  if(
+    activeGoal &&
+    netMonthly <= 0
+  ){
+
+    return (
+      `You're spending at or above what you earn ` +
+      `this month, so "${escapeHtml(
+        activeGoal.name
+      )}" isn't getting any closer.`
+    );
+
+  }
+
+
+  if(
+    !activeGoal &&
+    wishlist.length > 0
+  ){
+
+    return (
+      `Every item on your wishlist is fully funded. ` +
+      `That's not luck — that's discipline wearing a very good coat.`
+    );
+
+  }
+
+
+  if(balance < 0){
+
+    return (
+      `Your available balance is ` +
+      `<span>−${fmt(
+        Math.abs(balance)
+      )}</span>. ` +
+      `Even the best wardrobe can't be built on a deficit.`
+    );
+
+  }
+
+
+  return (
+    `You're holding <span>${fmt(
+      balance
+    )}</span> with no active goal. ` +
+    `Perhaps it's time to want something.`
+  );
+
+}
+
+
+/* =========================================================
+   LOAD EVERYTHING
+========================================================= */
+
+async function loadAll(){
+
+  try{
+
+    await Promise.all([
+      loadTransactions(),
+      loadWishlist(),
+      loadSubjects(),
+      loadTodos(),
+      loadBooks()
     ]);
-    renderOverview(); renderTransactions(); renderWishlist(); renderSubjects(); renderTodos(); renderBooks();
+
+
+    renderOverview();
+
+    renderTransactions();
+
+    renderWishlist();
+
+    renderSubjects();
+
+    renderTodos();
+
+    renderBooks();
+
+  }catch(error){
+
+    console.error(
+      'loadAll error:',
+      error
+    );
+
+    showError(
+      'Could not load your data: ' +
+      error.message
+    );
+
   }
 
-  boot();
+}
+
+
+/* =========================================================
+   START APPLICATION
+========================================================= */
+
+boot();
+
 })();
+
 </script>
+
 </body>
 </html>
